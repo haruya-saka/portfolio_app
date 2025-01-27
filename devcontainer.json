@@ -1,0 +1,13 @@
+{
+  "name": "Portfolio_app",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/workspace",
+  "extensions": [
+    "rebornix.Ruby",
+    "octref.vetur"
+  ],
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  }
+}

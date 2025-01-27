@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MyApp</title>
+    <%= csrf_meta_tags %>
+    <%= javascript_include_tag "turbo", type: "module" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag "application" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  
+  <body>
+    <%= render 'layouts/header' %>
+    <% flash.each do |key, message| %>
+      <div class="<%= key %>"><%= message %></div>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+<h1>Welcome to the Home Page</h1>
+
+<% if current_user %>
+  <%= form_with url: logout_path, method: :delete, data: { confirm: 'Are you sure you want to log out?' } do %>
+    <%= submit_tag 'Logout' %>
+  <% end %>
+<% else %>
+  <%= link_to 'Login', new_session_path %>
+<% end %>
