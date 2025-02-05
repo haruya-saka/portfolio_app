@@ -41,31 +41,28 @@ export default {
     loggedIn: Boolean,
   },
   mounted() {
-    console.log('rootPath:', this.rootPath);
-    console.log('userPath:', this.userPath);
-    console.log('signupPath:', this.signupPath);
-    console.log('loginPath:', this.loginPath);
-    console.log('logoutPath:', this.logoutPath);
-    console.log('loggedIn:', this.loggedIn);
+
   },
   methods: {
     navigateTo(path) {
       window.location.href = path;
     },
     logout() {
-      fetch(this.logoutPath, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-      }).then(() => {
-        window.location.href = this.rootPath;
-      });
+      if (confirm('ログアウトしますか？')) {
+        fetch(this.logoutPath, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        }).then(() => {
+          window.location.href = this.rootPath;
+        });
+      }
     }
   }
 }
-
 </script>
-<style scoped>
 
+<style scoped>
+/* 必要に応じてスタイルを追加 */
 </style>

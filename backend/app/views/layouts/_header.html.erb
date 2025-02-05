@@ -1,8 +1,15 @@
-<div id="header"
-     data-root-path="<%= root_path %>"
-     data-user-path="<%= current_user ? user_path(current_user) : '' %>"
-     data-signup-path="<%= signup_path %>"
-     data-login-path="<%= login_path %>"
-     data-logout-path="<%= logout_path %>"
-     data-logged-in="<%= logged_in? %>">
-</div>
+<header class="header">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <div id="vue-header"
+           data-root-path="<%= root_path %>"
+           data-user-path="<%= current_user ? user_path(current_user) : '' %>"
+           data-signup-path="<%= signup_path %>"
+           data-login-path="<%= login_path %>"
+           data-logout-path="<%= logout_path %>"
+           data-logged-in="<%= logged_in? %>">
+      </div>
+    </div>
+  </nav>
+</header>
+

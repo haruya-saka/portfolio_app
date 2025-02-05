@@ -18,7 +18,8 @@
     "@rails/activestorage": "^8.0.100",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
-    "bootstrap-vue-next": "^0.26.20"
+    "bootstrap-vue-next": "^0.26.20",
+    "cropperjs": "^1.6.2"
   },
   "name": "backend",
   "version": "1.0.0",

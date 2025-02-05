@@ -3,18 +3,21 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 import { createBootstrap } from 'bootstrap-vue-next'
 import { createApp } from 'vue'
-import "@hotwired/turbo-rails"
+import { Turbo } from "@hotwired/turbo-rails"
 import "@hotwired/stimulus"
 import Home from '../home.vue'
 import LoginForm from '../components/LoginForm.vue'
 import SignupForm from '../components/SignupForm.vue'
 import Header from '../components/Header.vue'
-// import "@hotwired/stimulus-loading"
+import Profile from '../users/Profile.vue'
+import EditProfile from '../users/EditProfile.vue'
 
-function initializeApp(component, selector) {
+Turbo.start()
+
+function initializeApp(component, selector, props = {}) {
   const element = document.querySelector(selector)
   if (element) {
-    const app = createApp(component)
+    const app = createApp(component, props)
     app.use(createBootstrap())
     console.log('Bootstrap has been applied')
     app.mount(selector)
@@ -25,5 +28,29 @@ document.addEventListener('turbo:load', () => {
   initializeApp(Home, '#home')
   initializeApp(LoginForm, '#login-form')
   initializeApp(SignupForm, '#signup-form')
-  initializeApp(Header, '#header')
+
+  const headerElement = document.querySelector('#vue-header')
+  if (headerElement) {
+    const props = {
+      rootPath: headerElement.dataset.rootPath,
+      userPath: headerElement.dataset.userPath,
+      signupPath: headerElement.dataset.signupPath,
+      loginPath: headerElement.dataset.loginPath,
+      logoutPath: headerElement.dataset.logoutPath,
+      loggedIn: headerElement.dataset.loggedIn === 'true'
+    }
+    initializeApp(Header, '#vue-header', props)
+  }
+
+  const profileElement = document.querySelector('#profile')
+  if (profileElement) {
+    const user = JSON.parse(profileElement.dataset.user)
+    initializeApp(Profile, '#profile', { user })
+  }
+
+  const editProfileElement = document.querySelector('#edit-profile') 
+  if (editProfileElement) {
+    const user = JSON.parse(editProfileElement.dataset.user)
+    initializeApp(EditProfile, '#edit-profile', { user })
+  }
 })

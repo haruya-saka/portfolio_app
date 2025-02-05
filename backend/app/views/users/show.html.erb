@@ -1,2 +1,2 @@
-<h1><%= @user.name %>のプロフィール</h1>
-<p>Email: <%= @user.email_address %></p>
+<!-- app/views/users/show.html.erb -->
+<div id="profile" data-user='<%= @user.to_json(methods: :profile_image_url) %>'></div>

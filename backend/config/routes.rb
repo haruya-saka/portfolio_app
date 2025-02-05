@@ -14,9 +14,12 @@ Rails.application.routes.draw do
   
   get 'login', to: 'sessions#new'
   post 'login', to: 'sessions#create'
-  
 
-  resources :users, only: [:show, :edit, :update]
+  resources :users, only: [:show, :edit, :update] do
+    member do
+      patch 'profile_image', to: 'users#update_profile_image'
+    end
+  end
   
   get 'up', to: 'rails/health#show', as: :rails_health_check
 end
