@@ -11,6 +11,8 @@ import SignupForm from '../components/SignupForm.vue'
 import Header from '../components/Header.vue'
 import Profile from '../users/Profile.vue'
 import EditProfile from '../users/EditProfile.vue'
+import WorksPage from '../works/WorksPage.vue'
+import PostWorks from '../works/PostWorks.vue'
 
 Turbo.start()
 
@@ -52,5 +54,18 @@ document.addEventListener('turbo:load', () => {
   if (editProfileElement) {
     const user = JSON.parse(editProfileElement.dataset.user)
     initializeApp(EditProfile, '#edit-profile', { user })
+  }
+
+  const worksElement = document.querySelector('#works-page') 
+  if (worksElement) {
+    const user = JSON.parse(worksElement.dataset.user)
+    const works = JSON.parse(worksElement.dataset.works)
+    initializeApp(WorksPage, '#works-page', { user, works })
+  }
+  
+  const postWorkElement = document.querySelector('#post-work') 
+  if (postWorkElement) {
+    const user = JSON.parse(postWorkElement.dataset.user)
+    initializeApp(PostWorks, '#post-work', { user })
   }
 })

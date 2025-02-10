@@ -19,6 +19,8 @@ Rails.application.routes.draw do
     member do
       patch 'profile_image', to: 'users#update_profile_image'
     end
+
+    resources :works, only: [:index, :show, :new, :create, :edit, :update, :destroy]
   end
   
   get 'up', to: 'rails/health#show', as: :rails_health_check

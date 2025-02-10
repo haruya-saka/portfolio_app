@@ -1,0 +1,11 @@
+one:
+  title: "First Work"
+  description: "This is the first work."
+  user: one
+  image: <%= Rails.root.join("test/fixtures/files/sample_image.JPG").open %>
+
+two:
+  title: "Second Work"
+  description: "This is the second work."
+  user: one
+  image: <%= Rails.root.join("test/fixtures/files/sample_image.JPG").open %>
