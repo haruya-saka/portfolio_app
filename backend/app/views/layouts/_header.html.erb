@@ -4,6 +4,7 @@
       <div id="vue-header"
            data-root-path="<%= root_path %>"
            data-user-path="<%= current_user ? user_path(current_user) : '' %>"
+           data-works-path="<%= current_user ? user_works_path(current_user) : '' %>"
            data-signup-path="<%= signup_path %>"
            data-login-path="<%= login_path %>"
            data-logout-path="<%= logout_path %>"

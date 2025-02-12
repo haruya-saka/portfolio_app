@@ -1,32 +1,30 @@
 <template>
-  <div>
-    <h1>{{ user.name }}'s Works</h1>
-    <ul>
-      <li v-for="work in localWorks" :key="work.id">
-        <h2>{{ work.title }}</h2>
-        <p>{{ work.description }}</p>
-        <img :src="work.image_url" alt="Work Image" v-if="work.image_url">
-        <button @click="deleteWork(work.id)">削除</button>
-      </li>
-    </ul>
-    <a :href="newWorkPath">Post a new work</a>
+  <div class="works-container">
+    <div v-for="work in localWorks" :key="work.id" class="work-card">
+      <template v-if="work.thumbnail_url">
+        <div class="img-wrapper">
+          <img
+            :src="work.thumbnail_url"
+            class="img-uniform"
+            alt="Work Image"
+            @click="goToDetail(work.id)"
+            @error="handleImageError(work.thumbnail_url)"
+          >
+        </div>
+      </template>
+      <div class="work-info">
+        <h5>{{ work.title }}</h5>
+        <!-- <button @click.stop="deleteWork(work.id)">削除</button> -->
+      </div>
+    </div>
+    <div class="new-work-link">
+      <a :href="newWorkPath" class="btn-link">Post a new work</a>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-
-// リクエストインターセプター
-axios.interceptors.request.use(request => {
-  console.log('Starting Request', request);
-  return request;
-});
-
-// レスポンスインターセプター
-axios.interceptors.response.use(response => {
-  console.log('Response:', response);
-  return response;
-});
 
 export default {
   props: {
@@ -68,25 +66,101 @@ export default {
     async fetchWorks() {
       try {
         console.log('Fetching works from server...');
-        const response = await axios.get(`/users/${this.user.id}/works`, {
+        const response = await axios.get(`/users/${this.user.id}/works.json`, { // JSON形式で取得
           headers: {
             'Accept': 'application/json'
           }
         });
         console.log('Response received:', response.data);
-        this.localWorks = response.data; // 作品リストを直接更新
+        this.localWorks = response.data;
       } catch (error) {
         console.error('作品リストの取得に失敗しました:', error);
       }
+    },
+    handleImageError(imageUrl) {
+      console.error('画像の読み込みに失敗しました:', imageUrl);
+    },
+    goToDetail(workId) {
+      window.location.href = `/users/${this.user.id}/works/${workId}`;
     }
   },
   mounted() {
-    this.localWorks = this.works; // 初期データをローカルな状態にコピー
-    this.fetchWorks(); // コンポーネントがマウントされたときに作品リストを取得
+    this.localWorks = this.works;
+    this.fetchWorks();
+    window.addEventListener('beforeunload', this.fetchWorks); // ページ遷移時にデータを再取得
+  },
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', this.fetchWorks);
   }
 };
 </script>
 
 <style scoped>
-/* 必要に応じてスタイルを追加 */
+/* works 全体のコンテナ */
+.works-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+/* 個別の work card */
+.work-card {
+  width: 300px;
+  margin: 1rem 0;
+  border: none; /* 黒枠を削除 */
+  border-radius: 4px;
+  box-shadow: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 画像用ラッパー */
+.img-wrapper {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 画像のスタイルを統一 */
+.img-uniform {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* workの情報部分 */
+.work-info {
+  padding: 1rem;
+  text-align: center;
+}
+.work-info h5 {
+  margin: 0.5rem 0;
+}
+.work-info button {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 新規作品投稿ボタン */
+.new-work-link {
+  width: 100%;
+  text-align: center;
+  margin-top: 2rem;
+}
+.new-work-link .btn-link {
+  text-decoration: none;
+  color: #007bff;
+  font-size: 1.1rem;
+}
 </style>

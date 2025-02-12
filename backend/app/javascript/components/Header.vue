@@ -15,12 +15,15 @@
               <button @click="navigateTo(userPath)" class="nav-link btn btn-link">Profile</button>
             </li>
             <li v-if="loggedIn" class="nav-item">
+              <button @click="navigateTo(worksPath)" class="nav-link btn btn-link">Works</button>
+            </li>
+            <li v-if="loggedIn" class="nav-item">
               <button @click="logout" class="nav-link btn btn-link">Logout</button>
             </li>
-            <li v-else class="nav-item">
+            <li v-else-if="!loggedIn" class="nav-item">
               <button @click="navigateTo(signupPath)" class="nav-link btn btn-link">Signup</button>
             </li>
-            <li v-else class="nav-item">
+            <li v-else-if="!loggedIn" class="nav-item">
               <button @click="navigateTo(loginPath)" class="nav-link btn btn-link">Login</button>
             </li>
           </ul>
@@ -35,6 +38,7 @@ export default {
   props: {
     rootPath: String,
     userPath: String,
+    worksPath: String, 
     signupPath: String,
     loginPath: String,
     logoutPath: String,

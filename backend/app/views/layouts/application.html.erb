@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>MyApp</title>
+    <title>PortfolioApp</title>
     <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag "application" %>
+
   </head>
 
-  
   <body>
+    <div id="header"></div>
     <%= render 'layouts/header' %>
     <% flash.each do |key, message| %>
       <div class="<%= key %>"><%= message %></div>

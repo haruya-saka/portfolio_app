@@ -12,6 +12,7 @@ import Header from '../components/Header.vue'
 import Profile from '../users/Profile.vue'
 import EditProfile from '../users/EditProfile.vue'
 import WorksPage from '../works/WorksPage.vue'
+import WorkShowPage from '../works/WorkShowPage.vue'
 import PostWorks from '../works/PostWorks.vue'
 
 Turbo.start()
@@ -36,6 +37,7 @@ document.addEventListener('turbo:load', () => {
     const props = {
       rootPath: headerElement.dataset.rootPath,
       userPath: headerElement.dataset.userPath,
+      worksPath: headerElement.dataset.worksPath, 
       signupPath: headerElement.dataset.signupPath,
       loginPath: headerElement.dataset.loginPath,
       logoutPath: headerElement.dataset.logoutPath,
@@ -61,6 +63,13 @@ document.addEventListener('turbo:load', () => {
     const user = JSON.parse(worksElement.dataset.user)
     const works = JSON.parse(worksElement.dataset.works)
     initializeApp(WorksPage, '#works-page', { user, works })
+  }
+
+  const worksShowElement = document.querySelector('#works-show')
+  if (worksShowElement) {
+    const user = JSON.parse(worksShowElement.dataset.user)
+    const work = JSON.parse(worksShowElement.dataset.work)
+    initializeApp(WorkShowPage, '#works-show', { user, work })
   }
   
   const postWorkElement = document.querySelector('#post-work') 

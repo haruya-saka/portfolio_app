@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_05_053913) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_12_022441) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -57,6 +57,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_05_053913) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  create_table "work_images", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "work_id", null: false
+    t.string "image_url"
+    t.string "orientation"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["work_id"], name: "index_work_images_on_work_id"
+  end
+
   create_table "works", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -69,5 +78,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_05_053913) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "sessions", "users"
+  add_foreign_key "work_images", "works"
   add_foreign_key "works", "users"
 end
