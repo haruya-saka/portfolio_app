@@ -14,6 +14,7 @@ import EditProfile from '../users/EditProfile.vue'
 import WorksPage from '../works/WorksPage.vue'
 import WorkShowPage from '../works/WorkShowPage.vue'
 import PostWorks from '../works/PostWorks.vue'
+import WorksEdit from '../works/WorksEdit.vue'
 
 Turbo.start()
 
@@ -76,5 +77,12 @@ document.addEventListener('turbo:load', () => {
   if (postWorkElement) {
     const user = JSON.parse(postWorkElement.dataset.user)
     initializeApp(PostWorks, '#post-work', { user })
+  }
+
+  const worksEditElement = document.querySelector('#works-edit')
+  if (worksEditElement) {
+    const user = JSON.parse(worksEditElement.dataset.user)
+    const work = JSON.parse(worksEditElement.dataset.work)
+    initializeApp(WorksEdit, '#works-edit', { user, work })
   }
 })

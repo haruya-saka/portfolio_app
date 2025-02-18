@@ -69,9 +69,22 @@ class WorksController < ApplicationController
 
   def update
     if @work.update(work_params)
-      redirect_to user_work_path(@user, @work), notice: 'Work was successfully updated.'
+      if params[:work][:images].present?
+        @work.work_images.destroy_all
+        params[:work][:images].each do |image|
+          image_url = Rails.application.routes.url_helpers.rails_blob_url(image, only_path: true)
+          @work.work_images.create(image_url: image_url, orientation: 'landscape')
+        end
+      end
+      respond_to do |format|
+        format.html { redirect_to user_work_path(@user, @work), notice: 'Work was successfully updated.' }
+        format.json { render json: { redirect_url: user_work_path(@user, @work) }, status: :ok }
+      end
     else
-      render :edit
+      respond_to do |format|
+        format.html { render :edit }
+        format.json { render json: @work.errors, status: :unprocessable_entity }
+      end
     end
   end
 

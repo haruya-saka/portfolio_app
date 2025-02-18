@@ -1,0 +1,3 @@
+<div id="works-edit" data-user='<%= @user.to_json(only: [:id]) %>' data-work='<%= @work.to_json(include: { work_images: { only: [:image_url, :orientation] } }) %>'>
+  <!-- Vueがマウントされます -->
+</div>
