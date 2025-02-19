@@ -9,3 +9,19 @@ two:
   work: two
   image_url: MyString
   orientation: MyString
+
+work_image_1:
+  work: work_1
+  image_url: "/images/work_sample.JPG"
+
+work_image_2:
+  work: work_1
+  image_url: "/images/work_sample.JPG"
+
+work_image_3:
+  work: work_2
+  image_url: "/images/work_sample.JPG"
+
+work_image_4:
+  work: work_3
+  image_url: "/images/work_sample.JPG"

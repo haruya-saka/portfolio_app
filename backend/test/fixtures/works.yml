@@ -1,11 +1,14 @@
-one:
-  title: "First Work"
-  description: "This is the first work."
-  user: one
-  image: <%= Rails.root.join("test/fixtures/files/sample_image.JPG").open %>
+work_1:
+  title: "Work One"
+  description: "Description for work one"
+  user: user_1
 
-two:
-  title: "Second Work"
-  description: "This is the second work."
-  user: one
-  image: <%= Rails.root.join("test/fixtures/files/sample_image.JPG").open %>
+work_2:
+  title: "Work Two"
+  description: "Description for work two"
+  user: user_1
+
+work_3:
+  title: "Work Three"
+  description: "Description for work three"
+  user: user_2

@@ -25,15 +25,15 @@ export default {
     };
   },
   methods: {
-    async postWork() {
-      if (!this.work.title || !this.work.description || this.work.work_images.length === 0) {
+    async postWork(work, newImages) {
+      if (!work.title || !work.description || newImages.length === 0) {
         alert("タイトル、ディスクリプション及び画像が必要です。");
         return;
       }
       const formData = new FormData();
-      formData.append('work[title]', this.work.title);
-      formData.append('work[description]', this.work.description);
-      this.work.work_images.forEach(img => {
+      formData.append('work[title]', work.title);
+      formData.append('work[description]', work.description);
+      newImages.forEach(img => {
         formData.append('work[images][]', img.croppedBlob);
       });
       try {

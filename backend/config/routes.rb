@@ -15,13 +15,15 @@ Rails.application.routes.draw do
   get 'login', to: 'sessions#new'
   post 'login', to: 'sessions#create'
 
-  resources :users, only: [:show, :edit, :update] do
+  resources :users, only: [:index, :show, :edit, :update] do
     member do
       patch 'profile_image', to: 'users#update_profile_image'
     end
 
     resources :works, only: [:index, :show, :new, :create, :edit, :update, :destroy]
   end
+
+  resources :relationships, only: [:create, :destroy]
   
   get 'up', to: 'rails/health#show', as: :rails_health_check
 end

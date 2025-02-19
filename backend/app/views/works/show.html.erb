@@ -1,5 +1,6 @@
-<div id="works-show"
-  data-user='<%= @user.to_json(only: [:id]) %>'
-  data-work='<%= @work.to_json(only: [:id, :title, :description], include: { work_images: { only: [:image_url, :orientation] } }) %>'>
+<div id="works-page"
+  data-user='<%= @user.to_json(only: [:id, :name], methods: :profile_image_url) %>'
+  data-work='<%= @work.to_json(only: [:id, :title, :description], include: { work_images: { only: [:image_url, :orientation] } }) %>'
+  data-current-user='<%= @current_user.to_json(only: [:id, :name], methods: :profile_image_url) %>'>
   <!-- Vueがマウントされます -->
 </div>

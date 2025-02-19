@@ -1,5 +1,12 @@
 <template>
   <div class="works-container">
+    <div class="user-info">
+      <img :src="user.profile_image_url" alt="Profile Image" class="rounded-circle img-thumbnail mr-3" style="width: 50px; height: 50px;" />
+      <h2>{{ user.name }}</h2>
+      <button v-if="!isCurrentUser" @click="toggleFollow" class="btn btn-primary ml-3">
+        {{ isFollowing ? 'Unfollow' : 'Follow' }}
+      </button>
+    </div>
     <div v-for="work in localWorks" :key="work.id" class="work-card">
       <template v-if="work.thumbnail_url">
         <div class="img-wrapper">
@@ -27,24 +34,20 @@
 import axios from 'axios';
 
 export default {
-  props: {
-    user: {
-      type: Object,
-      required: true
-    },
-    works: {
-      type: Array,
-      required: true
-    }
-  },
   data() {
     return {
-      localWorks: [] // ローカルな状態として作品リストを管理
+      user: {},
+      currentUser: {}, // currentUserを追加
+      localWorks: [], // ローカルな状態として作品リストを管理
+      isFollowing: false
     };
   },
   computed: {
     newWorkPath() {
       return `/users/${this.user.id}/works/new`;
+    },
+    isCurrentUser() {
+      return this.user.id === this.currentUser.id;
     }
   },
   methods: {
@@ -82,12 +85,67 @@ export default {
     },
     goToDetail(workId) {
       window.location.href = `/users/${this.user.id}/works/${workId}`;
+    },
+    async toggleFollow() {
+      try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        if (this.isFollowing) {
+          await axios.delete(`/relationships/${this.user.id}`, {
+            headers: {
+              'X-CSRF-Token': csrfToken
+            }
+          });
+        } else {
+          await axios.post('/relationships', {
+            followed_id: this.user.id
+          }, {
+            headers: {
+              'X-CSRF-Token': csrfToken
+            }
+          });
+        }
+        this.isFollowing = !this.isFollowing;
+      } catch (error) {
+        console.error('フォロー/アンフォローに失敗しました:', error);
+      }
+    },
+    async checkFollowing() {
+      try {
+        const response = await axios.get(`/users/${this.currentUser.id}/following`);
+        this.isFollowing = response.data.some(following => following.id === this.user.id);
+      } catch (error) {
+        console.error('フォロー状態の確認に失敗しました:', error);
+      }
     }
   },
   mounted() {
-    this.localWorks = this.works;
+    const homeEl = document.getElementById('home');
+    const currentUserData = homeEl?.dataset.currentUser;
+    if (currentUserData) {
+      this.currentUser = JSON.parse(currentUserData);
+      console.log('Current user data:', this.currentUser);
+    }
+    const worksPageEl = document.getElementById('works-page');
+    const userData = worksPageEl?.dataset.user;
+    const worksData = worksPageEl?.dataset.works;
+    if (userData) {
+      this.user = JSON.parse(userData);
+      console.log('User data:', this.user);
+    }
+    if (worksData) {
+      this.localWorks = JSON.parse(worksData);
+      console.log('Works data:', this.localWorks);
+    }
+    if (!currentUserData) {
+      // currentUser の情報がない場合は、ログインユーザーは閲覧対象のユーザーと同じとみなす
+      this.currentUser = this.user;
+      console.log('No currentUser data found; assuming self.');
+    }
     this.fetchWorks();
-    window.addEventListener('beforeunload', this.fetchWorks); // ページ遷移時にデータを再取得
+    if (!this.isCurrentUser) {
+      this.checkFollowing();
+    }
+    window.addEventListener('beforeunload', this.fetchWorks);
   },
   beforeDestroy() {
     window.removeEventListener('beforeunload', this.fetchWorks);
@@ -102,6 +160,21 @@ export default {
   flex-direction: column;
   align-items: center;
   margin-top: 2rem;
+}
+
+/* ユーザー情報 */
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.user-info img {
+  margin-right: 1rem;
+}
+
+.user-info h2 {
+  margin: 0;
 }
 
 /* 個別の work card */

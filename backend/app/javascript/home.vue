@@ -12,17 +12,20 @@
         <button class="btn btn-primary btn-sm" @click="goToSignup">登録する</button>
       </div>
     </div>
+    <UserList v-if="user" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import LoginForm from './components/LoginForm.vue'
+import UserList from './components/UserList.vue'
 
 export default defineComponent({
   name: 'home',
   components: {
     LoginForm,
+    UserList
   },
   setup() {
     const message = "Portfolio App";
