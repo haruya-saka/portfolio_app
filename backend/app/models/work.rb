@@ -1,15 +1,22 @@
 class Work < ApplicationRecord
   belongs_to :user
-  # 変更: has_one_attached :image -> has_many_attached :images
-  has_many_attached :images
+  has_one_attached :image
   has_many :work_images, dependent: :destroy
 
   validates :title, :description, presence: true
 
   def image_url
-    if images.attached?
-      # 最初の画像の URL を返す
-      Rails.application.routes.url_helpers.rails_blob_url(images.first, only_path: true)
+    Rails.application.routes.url_helpers.rails_blob_url(image, only_path: true) if image.attached?
+  end
+
+  def thumbnail_url
+    if image.attached?
+      Rails.application.routes.url_helpers.rails_representation_url(
+        image.variant(resize_to_limit: [300, 300]).processed,
+        only_path: true
+      )
+    elsif work_images.any? && work_images.first.image_url.present?
+      work_images.first.image_url
     end
   end
 end

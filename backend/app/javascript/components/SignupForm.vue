@@ -57,7 +57,7 @@ export default {
     this.csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
   },
   methods: {
-    submitForm() {
+    async submitForm() {
       console.log('Submitting form with:', {
         name: this.name,
         email_address: this.email_address,
@@ -65,33 +65,38 @@ export default {
         password_confirmation: this.password_confirmation
       });
 
-      axios.post('/signup', {
-        user: {
-          name: this.name,
-          email_address: this.email_address,
-          password: this.password,
-          password_confirmation: this.password_confirmation
-        }
-      }, {
-        headers: {
-          'X-CSRF-Token': this.csrfToken
-        }
-      })
-      .then(response => {
+      try {
+        const response = await axios.post('/signup', {
+          user: {
+            name: this.name,
+            email_address: this.email_address,
+            password: this.password,
+            password_confirmation: this.password_confirmation
+          }
+        }, {
+          headers: {
+            'X-CSRF-Token': this.csrfToken,
+            'Accept': 'application/json'
+          }
+        });
+
         console.log('Response:', response);
+        this.flash.alert = ''; // 失敗メッセージをクリア
         this.flash.notice = 'Signed up successfully';
         console.log('Flash notice:', this.flash.notice);
-        window.location.href = '/';
-      })
-      .catch(error => {
+
+        const responseData = response.data;
+        window.location.href = responseData.redirect_url; // プロフィールページにリダイレクト
+      } catch (error) {
         console.log('Error:', error.response);
+        this.flash.notice = ''; // 成功メッセージをクリア
         if (error.response && error.response.data && error.response.data.alert) {
           this.flash.alert = error.response.data.alert;
         } else {
           this.flash.alert = 'Sign up failed';
         }
         console.log('Flash alert:', this.flash.alert);
-      });
+      }
     }
   }
 };

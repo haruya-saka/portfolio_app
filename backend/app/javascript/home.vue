@@ -5,6 +5,10 @@
       <LoginForm v-if="!user" />
       <div v-else>
         <p>Welcome, {{ user.name }}</p>
+          <!-- ログイン時にfeedコンポーネントを表示 -->
+        <div v-if="user">
+          <Feed />
+        </div>
         <button class="btn btn-primary btn-sm" @click="logout">Logout</button>
       </div>
       <div class="signup mt-4" v-if="!user">
@@ -12,20 +16,19 @@
         <button class="btn btn-primary btn-sm" @click="goToSignup">登録する</button>
       </div>
     </div>
-    <UserList v-if="user" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import LoginForm from './components/LoginForm.vue'
-import UserList from './components/UserList.vue'
+import Feed from './feed/feed.vue'
 
 export default defineComponent({
   name: 'home',
   components: {
     LoginForm,
-    UserList
+    Feed
   },
   setup() {
     const message = "Portfolio App";
@@ -36,14 +39,14 @@ export default defineComponent({
     };
 
     const logout = async () => {
-    await fetch('/logout', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      }
-    });
-    window.location.href = '/';
+      await fetch('/logout', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+      });
+      window.location.href = '/';
     };
 
     // カレントユーザー情報を取得

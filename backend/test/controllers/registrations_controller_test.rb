@@ -10,16 +10,19 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_difference('User.count', 1) do
       post signup_path, params: { user: { name: "TestMan", email_address: "test@example.com", password: "password", password_confirmation: "password" } }
     end
-    assert_redirected_to new_session_path
-    follow_redirect!
-    assert_select "div.notice", "Signed up successfully"
+    assert_response :created
+    json_response = JSON.parse(response.body)
+    assert_equal user_path(User.last), json_response['redirect_url']
+    assert_equal "TestMan", json_response['user']['name']
+    assert_equal "test@example.com", json_response['user']['email_address']
   end
 
   test "should not create user with invalid parameters" do
     assert_no_difference('User.count') do
       post signup_path, params: { user: { name: "TestMan", email_address: "test@example.com", password: "password", password_confirmation: "wrongpassword" } }
     end
-    assert_response :success
-    assert_select "div.alert", "Password confirmation doesn't match Password"
+    assert_response :unprocessable_entity
+    json_response = JSON.parse(response.body)
+    assert_match /Password confirmation doesn't match Password/, json_response['alert']
   end
 end

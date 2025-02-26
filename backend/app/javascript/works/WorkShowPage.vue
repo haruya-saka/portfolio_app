@@ -19,6 +19,9 @@
 </template>
 
 <script>
+import { useSessionStore } from '../stores/sessionStore'
+import { computed, onMounted } from 'vue'
+
 export default {
   props: {
     user: {
@@ -34,10 +37,25 @@ export default {
       })
     }
   },
-  mounted() {
-    console.log('WorkShowPage mounted.')
-    console.log('Received user prop:', this.user)
-    console.log('Received work prop:', this.work)
+  // 追加：コンポーネント生成時のデバッグログ
+  created() {
+    console.log('WorkShowPage created');
+  },
+  setup() {
+    const sessionStore = useSessionStore();
+    onMounted(() => {
+      console.log('WorkShowPage onMounted fired');
+      const meta = document.querySelector('meta[name="current-user"]');
+      console.log('WorkShowPage meta tag:', meta, meta ? meta.content : 'n/a');
+      try {
+        sessionStore.loadCurrentUser();
+      } catch(e) {
+        console.error('Error in loadCurrentUser:', e);
+      }
+      console.log('After loadCurrentUser, sessionStore.currentUser:', sessionStore.currentUser);
+    });
+    const currentUser = computed(() => sessionStore.currentUser || {});
+    return { currentUser };
   }
 }
 </script>

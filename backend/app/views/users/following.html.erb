@@ -1,0 +1,8 @@
+<h1><%= @user.name %>のフォロー中</h1>
+<ul>
+  <% @users.each do |followed| %>
+    <li>
+      <a href="/users/<%= followed.id %>"><%= followed.name %></a>
+    </li>
+  <% end %>
+</ul>

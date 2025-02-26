@@ -30,6 +30,19 @@ class User < ApplicationRecord
   def followers_count
     followers.count
   end
+
+  def follow(other_user)
+    return if self == other_user  # 自分自身はフォローできない
+    active_relationships.create(followed_id: other_user.id)
+  end
+
+  def unfollow(other_user)
+    active_relationships.find_by(followed_id: other_user.id)&.destroy
+  end
+
+  def following?(other_user)
+    following.include?(other_user)
+  end
   
   private
 

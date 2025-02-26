@@ -1,78 +1,84 @@
 <template>
-  <div class="works-container">
-    <div class="user-info">
-      <img :src="user.profile_image_url" alt="Profile Image" class="rounded-circle img-thumbnail mr-3" style="width: 50px; height: 50px;" />
-      <h2>{{ user.name }}</h2>
-      <button v-if="!isCurrentUser" @click="toggleFollow" class="btn btn-primary ml-3">
-        {{ isFollowing ? 'Unfollow' : 'Follow' }}
-      </button>
-    </div>
-    <div v-for="work in localWorks" :key="work.id" class="work-card">
-      <template v-if="work.thumbnail_url">
-        <div class="img-wrapper">
-          <img
-            :src="work.thumbnail_url"
-            class="img-uniform"
-            alt="Work Image"
-            @click="goToDetail(work.id)"
-            @error="handleImageError(work.thumbnail_url)"
-          >
-        </div>
-      </template>
-      <div class="work-info">
-        <h5>{{ work.title }}</h5>
-        <!-- <button @click.stop="deleteWork(work.id)">削除</button> -->
+  <div id="works-page">
+    <div class="works-container">
+      <div class="user-info">
+        <img :src="localWorkUser.profile_image_url" alt="Profile Image" class="rounded-circle img-thumbnail mr-3" style="width: 50px; height: 50px;" />
+        <h2>{{ localWorkUser.name }}</h2>
+        <button v-if="!isCurrentUser" @click="toggleFollow" :class="['btn', isFollowing ? 'btn-secondary' : 'btn-primary', 'ms-3']">
+          {{ isFollowing ? 'Unfollow' : 'Follow' }}
+        </button>
       </div>
-    </div>
-    <div class="new-work-link">
-      <a :href="newWorkPath" class="btn-link">Post a new work</a>
+      <div v-for="work in localWorks" :key="work.id" class="work-card">
+        <template v-if="work.thumbnail_url">
+          <div class="img-wrapper">
+            <img
+              :src="work.thumbnail_url"
+              class="img-uniform"
+              alt="Work Image"
+              @click="goToDetail(work.id)"
+              @error="handleImageError(work.thumbnail_url)"
+            >
+            <!-- <button class="delete-button" @click.stop="deleteWork(work.id)">削除</button> -->
+          </div>
+        </template>
+        <div class="work-info">
+          <h5>{{ work.title }}</h5>
+        </div>
+      </div>
+      <div class="new-work-link" v-if="isCurrentUser">
+        <a :href="newWorkPath" class="btn-link">Post a new work</a>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import axios from 'axios'
+import { computed } from 'vue'
+import { useSessionStore } from '../stores/sessionStore'
 
 export default {
+  props: {
+    workUser: {
+      type: Object,
+      required: true
+    },
+    works: {
+      type: Array,
+      required: true
+    }
+  },
   data() {
     return {
-      user: {},
-      currentUser: {}, // currentUserを追加
-      localWorks: [], // ローカルな状態として作品リストを管理
-      isFollowing: false
+      localWorkUser: this.workUser,
+      works: [],
+      localWorks: this.works, // 初期値は props から設定
+      isFollowing: false,
     };
+  },
+  setup() {
+    const sessionStore = useSessionStore();
+    sessionStore.loadCurrentUser();
+    return { sessionStore };
   },
   computed: {
     newWorkPath() {
-      return `/users/${this.user.id}/works/new`;
+      return `/users/${this.localWorkUser.id}/works/new`;
+    },
+    currentUser() {
+      console.log('sessionStore:', this.sessionStore);
+      return (this.sessionStore && this.sessionStore.currentUser) ? this.sessionStore.currentUser : {};
     },
     isCurrentUser() {
-      return this.user.id === this.currentUser.id;
+      return this.localWorkUser && this.localWorkUser.id && this.currentUser && this.localWorkUser.id === this.currentUser.id;
     }
   },
   methods: {
-    async deleteWork(workId) {
-      if (confirm('本当に削除しますか？')) {
-        try {
-          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-          await axios.delete(`/users/${this.user.id}/works/${workId}`, {
-            headers: {
-              'X-CSRF-Token': csrfToken
-            }
-          });
-          this.fetchWorks(); // 作品リストを再取得
-        } catch (error) {
-          console.error('削除に失敗しました:', error);
-        }
-      }
-    },
     async fetchWorks() {
       try {
         console.log('Fetching works from server...');
-        const response = await axios.get(`/users/${this.user.id}/works.json`, { // JSON形式で取得
-          headers: {
-            'Accept': 'application/json'
-          }
+        const response = await axios.get(`/users/${this.localWorkUser.id}/works.json`, {
+          headers: { 'Accept': 'application/json' }
         });
         console.log('Response received:', response.data);
         this.localWorks = response.data;
@@ -84,67 +90,92 @@ export default {
       console.error('画像の読み込みに失敗しました:', imageUrl);
     },
     goToDetail(workId) {
-      window.location.href = `/users/${this.user.id}/works/${workId}`;
+      window.location.href = `/users/${this.localWorkUser.id}/works/${workId}`;
     },
     async toggleFollow() {
       try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         if (this.isFollowing) {
-          await axios.delete(`/relationships/${this.user.id}`, {
-            headers: {
-              'X-CSRF-Token': csrfToken
+          await axios.delete(`/relationships/${this.localWorkUser.id}`, {
+            headers: { 
+              'X-CSRF-Token': csrfToken,
+              'Accept': 'application/json'
             }
           });
-        } else {
-          await axios.post('/relationships', {
-            followed_id: this.user.id
-          }, {
-            headers: {
-              'X-CSRF-Token': csrfToken
-            }
-          });
+        } else {          // フォロー関係が存在するかどうかを確認
+          const checkResponse = await axios.get(`/relationships/find_by_user/${this.localWorkUser.id}`);
+          if (!checkResponse.data.is_following) {
+            await axios.post('/relationships', {
+              followed_id: this.localWorkUser.id
+            }, {
+              headers: { 
+                'X-CSRF-Token': csrfToken,
+                'Accept': 'application/json'
+              }
+            });
+          }
         }
         this.isFollowing = !this.isFollowing;
       } catch (error) {
-        console.error('フォロー/アンフォローに失敗しました:', error);
+        if (error.response && error.response.status === 500) {
+          console.error('フォロー/アンフォローに失敗しました: 重複エントリの可能性があります。', error);
+        } else {
+          console.error('フォロー/アンフォローに失敗しました:', error);
+        }
       }
     },
     async checkFollowing() {
       try {
-        const response = await axios.get(`/users/${this.currentUser.id}/following`);
-        this.isFollowing = response.data.some(following => following.id === this.user.id);
+        if (this.currentUser && this.currentUser.id) {
+          const response = await axios.get(`/relationships/find_by_user/${this.localWorkUser.id}`);
+          this.isFollowing = response.data.is_following;
+        }
       } catch (error) {
         console.error('フォロー状態の確認に失敗しました:', error);
       }
-    }
+    },
+    async deleteWork(workId) {
+      try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        await axios.delete(`/users/${this.localWorkUser.id}/works/${workId}`, {
+          headers: { 
+            'X-CSRF-Token': csrfToken,
+            'Accept': 'application/json'
+          }
+        });
+        this.localWorks = this.localWorks.filter(work => work.id !== workId);
+      } catch (error) {
+        console.error('作品の削除に失敗しました:', error);
+      }
+    },
   },
   mounted() {
-    const homeEl = document.getElementById('home');
-    const currentUserData = homeEl?.dataset.currentUser;
-    if (currentUserData) {
-      this.currentUser = JSON.parse(currentUserData);
-      console.log('Current user data:', this.currentUser);
-    }
+    console.debug('workspage.vue mounted');
     const worksPageEl = document.getElementById('works-page');
-    const userData = worksPageEl?.dataset.user;
-    const worksData = worksPageEl?.dataset.works;
-    if (userData) {
-      this.user = JSON.parse(userData);
-      console.log('User data:', this.user);
+    if (!worksPageEl) {
+      console.error('works-page element not found');
+      return;
     }
-    if (worksData) {
-      this.localWorks = JSON.parse(worksData);
-      console.log('Works data:', this.localWorks);
+    const rawWorkUserData = worksPageEl.getAttribute('data-user');
+    const rawWorksData = worksPageEl.getAttribute('data-works');
+    console.debug('Raw user data:', rawWorkUserData);
+    console.debug('Raw works data:', rawWorksData);
+    try {
+      const parsedWorkUser = JSON.parse(rawWorkUserData);
+      this.localWorkUser = parsedWorkUser;
+      console.debug('Parsed work user:', parsedWorkUser);
+    } catch (e) {
+      console.error('Failed to parse work user data:', e);
     }
-    if (!currentUserData) {
-      // currentUser の情報がない場合は、ログインユーザーは閲覧対象のユーザーと同じとみなす
-      this.currentUser = this.user;
-      console.log('No currentUser data found; assuming self.');
+    try {
+      const parsedWorks = JSON.parse(rawWorksData);
+      this.works = parsedWorks;
+      console.debug('Parsed works:', parsedWorks);
+    } catch (e) {
+      console.error('Failed to parse works data:', e);
     }
     this.fetchWorks();
-    if (!this.isCurrentUser) {
-      this.checkFollowing();
-    }
+    if (!this.isCurrentUser) this.checkFollowing();
     window.addEventListener('beforeunload', this.fetchWorks);
   },
   beforeDestroy() {
@@ -177,6 +208,11 @@ export default {
   margin: 0;
 }
 
+.user-info .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
 /* 個別の work card */
 .work-card {
   width: 300px;
@@ -192,12 +228,26 @@ export default {
 
 /* 画像用ラッパー */
 .img-wrapper {
+  position: relative;
   width: 100%;
   height: 200px;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* 削除ボタン */
+.delete-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 /* 画像のスタイルを統一 */

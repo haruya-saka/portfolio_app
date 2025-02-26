@@ -1,6 +1,7 @@
 class WorksController < ApplicationController
   before_action :set_user
   before_action :set_work, only: [:edit, :update, :destroy]
+  before_action :authorize_user, only: [:new, :create, :edit, :update, :destroy]
 
   def index
     @works = @user.works.includes(:work_images)
@@ -101,6 +102,12 @@ class WorksController < ApplicationController
 
   def set_work
     @work = @user.works.find(params[:id])
+  end
+
+  def authorize_user
+    unless current_user && current_user.id == @user.id
+      redirect_to root_path, alert: "You are not authorized to perform this action."
+    end
   end
 
   def work_params

@@ -31,9 +31,9 @@
           <hr>
           <span class="position-absolute top-50 start-50 translate-middle bg-white px-2">または</span>
         </div>
-        <div class="mt-3 text-center">
+        <!-- <div class="mt-3 text-center">
           <a :href="forgotPasswordPath">パスワードを忘れた場合</a>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

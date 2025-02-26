@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "feed/index"
   root to: 'vue#index'
   
   get 'vue/index'
@@ -18,12 +19,18 @@ Rails.application.routes.draw do
   resources :users, only: [:index, :show, :edit, :update] do
     member do
       patch 'profile_image', to: 'users#update_profile_image'
+      get 'following', to: 'users#following'
+      get 'followers', to: 'users#followers'
     end
 
     resources :works, only: [:index, :show, :new, :create, :edit, :update, :destroy]
   end
 
+  # フォロー関連のルーティング
   resources :relationships, only: [:create, :destroy]
+  get 'relationships/find_by_user/:user_id', to: 'relationships#find_by_user'
   
-  get 'up', to: 'rails/health#show', as: :rails_health_check
+  # フィード関連のルーティング
+  get 'feed', to: 'feed#index'
+
 end

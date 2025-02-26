@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 import { createBootstrap } from 'bootstrap-vue-next'
 import { createApp } from 'vue'
+import { createPinia } from 'pinia' // 追加
 import { Turbo } from "@hotwired/turbo-rails"
 import "@hotwired/stimulus"
 import Home from '../home.vue'
@@ -23,7 +24,8 @@ function initializeApp(component, selector, props = {}) {
   if (element) {
     const app = createApp(component, props)
     app.use(createBootstrap())
-    console.log('Bootstrap has been applied')
+    app.use(createPinia()) // 追加：Pinia を登録
+    console.log('Bootstrap has been applied, Pinia registered')
     app.mount(selector)
   }
 }

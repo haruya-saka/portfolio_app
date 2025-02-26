@@ -18,7 +18,8 @@ export default {
   },
   async created() {
     const response = await fetch('/users.json');
-    this.users = await response.json();
+    const users = await response.json();
+    this.users = users.sort((a, b) => b.id - a.id);
   }
 };
 </script>

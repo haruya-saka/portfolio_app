@@ -7,7 +7,8 @@
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag "application" %>
-
+    <!-- カレントユーザー情報のmetaタグを追加 -->
+    <meta name="current-user" content='<%= current_user.to_json(only: [:id, :name], methods: [:profile_image_url, :following_count, :followers_count]) %>'>
   </head>
 
   <body>

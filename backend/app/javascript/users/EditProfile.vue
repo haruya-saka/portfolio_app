@@ -10,10 +10,10 @@
         <label for="name">名前</label>
         <input type="text" id="name" v-model="form.name" class="form-control" />
       </div>
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" v-model="form.email" class="form-control" />
-      </div>
+      </div> -->
       <button type="submit" class="btn btn-primary mt-2">プロフィールを更新</button>
     </form>
 

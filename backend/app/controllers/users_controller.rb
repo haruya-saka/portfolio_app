@@ -10,7 +10,8 @@ class UsersController < ApplicationController
   
   def show
     @user = User.find(params[:id])
-    
+    @user = User.find(params[:id]).as_json(only: [:id, :name], methods: [:profile_image_url, :following_count, :followers_count])
+    Rails.logger.debug "User JSON: #{@user.to_json}"  # デバッグ用ログ出力
     respond_to do |format|
       format.html # HTMLリクエストに対するレスポンス
       format.json { render json: @user } # JSONリクエストに対するレスポンス
@@ -37,6 +38,18 @@ class UsersController < ApplicationController
 
   def edit
     @user = current_user
+  end
+
+  def following
+    user = User.find(params[:id])
+    following_users = user.following.as_json(only: [:id, :name], methods: [:profile_image_url])
+    render json: { user: user.slice(:id, :name), following: following_users }
+  end
+  
+  def followers
+    user = User.find(params[:id])
+    followers_users = user.followers.as_json(only: [:id, :name], methods: [:profile_image_url])
+    render json: { user: user.slice(:id, :name), followers: followers_users }
   end
 
   private
