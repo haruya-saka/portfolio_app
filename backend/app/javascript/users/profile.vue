@@ -16,51 +16,46 @@
         </button>
       </p>
     </div>
-    <a :href="`/users/${user.id}/edit`" class="btn btn-secondary mt-3">プロフィールを編集</a>
-    <FollowModal 
-      v-if="showModal" 
-      :visible="showModal" 
-      :type="modalType" 
-      :items="modalItems" 
-      @close="closeModal" />
+    <!-- プロフィール編集ボタン: 自分自身のページでのみ表示 -->
+    <a v-if="isCurrentUser" :href="`/users/${user.id}/edit`" class="btn btn-secondary mt-3">プロフィールを編集</a>
+    <FollowModal v-if="showModal" :userId="user.id" :type="modalType" :visible="showModal" @close="showModal = false" />
   </div>
 </template>
 
 <script>
 import FollowModal from '../Relationships/FollowModal.vue'
+import { useSessionStore } from '../stores/sessionStore'
+
 export default {
   components: { FollowModal },
-  props: { user: { type: Object, required: true } },
+  props: {
+    user: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {
       profileImageUrl: this.user.profile_image_url,
       showModal: false,
-      modalType: '', // 'following' or 'followers'
-      modalItems: [] // API から取得したデータ
+      modalType: ''
     };
   },
+  computed: {
+    isCurrentUser() {
+      const sessionStore = useSessionStore();
+      return sessionStore.currentUser && sessionStore.currentUser.id === this.user.id;
+    }
+  },
   methods: {
-    async openModal(type) {
+    openModal(type) {
       this.modalType = type;
-      try {
-        console.log("Fetching", type, "data for user", this.user.id);
-        const res = await fetch(`/users/${this.user.id}/${type}`, {
-          headers: { 'Accept': 'application/json' }
-        });
-        const data = await res.json();
-        console.log("Received data:", data);
-        this.modalItems = type === 'following' ? data.following : data.followers;
-      } catch (err) {
-        console.error("Error fetching data:", err);
-      }
       this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
-      this.modalItems = [];
     }
   },
   mounted() {
+    const sessionStore = useSessionStore();
+    sessionStore.loadCurrentUser(); // 追加: currentUser を読み込む
     console.log('User data in Profile:', this.user);
     console.log('User keys:', Object.keys(this.user));
     console.log('Following count:', this.user.following_count);

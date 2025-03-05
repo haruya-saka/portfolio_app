@@ -26,6 +26,10 @@ Rails.application.routes.draw do
     resources :works, only: [:index, :show, :new, :create, :edit, :update, :destroy]
   end
 
+  resources :works do
+    resource :favorites, only: [:create, :destroy]
+  end
+
   # フォロー関連のルーティング
   resources :relationships, only: [:create, :destroy]
   get 'relationships/find_by_user/:user_id', to: 'relationships#find_by_user'

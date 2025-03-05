@@ -13,6 +13,10 @@ class User < ApplicationRecord
                                   foreign_key: "followed_id", 
                                   dependent: :destroy
   has_many :followers, through: :passive_relationships, source: :follower
+  
+  # ユーザーが付けたお気に入り
+  has_many :favorites, dependent: :destroy
+  has_many :favorite_works, through: :favorites, source: :work
 
   validates :name, presence: true
   validates :email_address, presence: true, uniqueness: true

@@ -3,12 +3,13 @@
     <h2>フィード</h2>
     <div v-if="feed.length">
       <ul>
-        <li v-for="item in feed" :key="item.id" class="feed-item">
-          <p>ID: {{ item.id }}</p>
-          <!-- ユーザー名クリックでプロフィールページへ -->
-          <p>ユーザー名: <a :href="`/users/${item.user.id}`">{{ item.user.name }}</a></p>
+        <li v-for="item in feed" :key="item.title" class="feed-item">
+          <!-- ユーザー情報(画像と名前) -->
+          <div class="user-info">
+            <img :src="item.user.profile_image_url" alt="Profile Image" class="rounded-circle img-thumbnail mr-3" style="width: 50px; height: 50px;" />
+            <a :href="`/users/${item.user.id}`">{{ item.user.name }}</a>
+          </div>
           <p>タイトル: {{ item.title || 'タイトル未定義' }}</p>
-          <p>投稿日: {{ item.created_at }}</p>
           <!-- 画像クリックでWorks詳細ページへ -->
           <a v-if="item.thumbnail_url" :href="`/users/${item.user.id}/works/${item.id}`">
             <img :src="item.thumbnail_url" alt="画像" class="img-fluid" />
@@ -23,22 +24,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
+import { fetchFeed, feed } from '../stores/feedStore';
 
 export default defineComponent({
   name: 'Feed',
   setup() {
-    const feed = ref([]);
-
-    onMounted(() => {
-      fetch('/feed')
-        .then(response => response.json())
-        .then(data => {
-          feed.value = data;
-        })
-        .catch(error => {
-          console.error("フィードの取得に失敗しました", error);
-        });
+    onMounted(async () => {
+      await fetchFeed();
+      console.log("Fetched feed data:", feed.value);
     });
 
     return {
@@ -57,11 +51,15 @@ export default defineComponent({
   padding: 10px;
 }
 
+ul {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
 .feed-item {
   margin-bottom: 20px;
 }
 
-/* Bootstrapが利用できない場合は以下のように画像サイズを調整 */
 .img-fluid {
   max-width: 100%;
   height: auto;

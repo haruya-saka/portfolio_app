@@ -3,6 +3,10 @@ class Work < ApplicationRecord
   has_one_attached :image
   has_many :work_images, dependent: :destroy
 
+  # 作品のお気に入り情報
+  has_many :favorites, dependent: :destroy
+  has_many :favorited_users, through: :favorites, source: :user
+
   validates :title, :description, presence: true
 
   def image_url
@@ -18,6 +22,16 @@ class Work < ApplicationRecord
     elsif work_images.any? && work_images.first.image_url.present?
       work_images.first.image_url
     end
+  end
+
+  # いいね数を返す
+  def favorite_count
+    favorites.count
+  end
+
+  # Option: JSON出力にfavorite_countを含める場合
+  def as_json(options = {})
+    super(options).merge('favorite_count' => favorite_count)
   end
 end
 

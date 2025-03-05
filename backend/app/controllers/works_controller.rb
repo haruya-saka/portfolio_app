@@ -4,7 +4,7 @@ class WorksController < ApplicationController
   before_action :authorize_user, only: [:new, :create, :edit, :update, :destroy]
 
   def index
-    @works = @user.works.includes(:work_images)
+    @works = @user.works.includes(:work_images, :favorites)
     respond_to do |format|
       format.html { render :index } 
       format.json do
@@ -15,7 +15,8 @@ class WorksController < ApplicationController
             title: work.title,
             description: work.description,
             thumbnail_url: first_image&.image_url,
-            orientation: first_image&.orientation
+            orientation: first_image&.orientation,
+            favorite_count: work.favorite_count
           }
         }
       end

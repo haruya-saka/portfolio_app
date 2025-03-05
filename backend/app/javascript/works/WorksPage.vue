@@ -8,7 +8,7 @@
           {{ isFollowing ? 'Unfollow' : 'Follow' }}
         </button>
       </div>
-      <div v-for="work in localWorks" :key="work.id" class="work-card">
+      <div v-for="work in worksStore.works" :key="work.id" class="work-card">
         <template v-if="work.thumbnail_url">
           <div class="img-wrapper">
             <img
@@ -18,11 +18,11 @@
               @click="goToDetail(work.id)"
               @error="handleImageError(work.thumbnail_url)"
             >
-            <!-- <button class="delete-button" @click.stop="deleteWork(work.id)">削除</button> -->
           </div>
         </template>
         <div class="work-info">
           <h5>{{ work.title }}</h5>
+          <p>いいね: {{ work.favorite_count }} 件</p>
         </div>
       </div>
       <div class="new-work-link" v-if="isCurrentUser">
@@ -36,6 +36,7 @@
 import axios from 'axios'
 import { computed } from 'vue'
 import { useSessionStore } from '../stores/sessionStore'
+import { useWorksStore } from '../stores/worksStore'
 
 export default {
   props: {
@@ -48,18 +49,17 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      localWorkUser: this.workUser,
-      works: [],
-      localWorks: this.works, // 初期値は props から設定
-      isFollowing: false,
-    };
-  },
   setup() {
     const sessionStore = useSessionStore();
     sessionStore.loadCurrentUser();
-    return { sessionStore };
+    const worksStore = useWorksStore();
+    return { sessionStore, worksStore };
+  },
+  data() {
+    return {
+      localWorkUser: this.workUser,
+      isFollowing: false,
+    };
   },
   computed: {
     newWorkPath() {
@@ -74,18 +74,6 @@ export default {
     }
   },
   methods: {
-    async fetchWorks() {
-      try {
-        console.log('Fetching works from server...');
-        const response = await axios.get(`/users/${this.localWorkUser.id}/works.json`, {
-          headers: { 'Accept': 'application/json' }
-        });
-        console.log('Response received:', response.data);
-        this.localWorks = response.data;
-      } catch (error) {
-        console.error('作品リストの取得に失敗しました:', error);
-      }
-    },
     handleImageError(imageUrl) {
       console.error('画像の読み込みに失敗しました:', imageUrl);
     },
@@ -174,12 +162,17 @@ export default {
     } catch (e) {
       console.error('Failed to parse works data:', e);
     }
-    this.fetchWorks();
     if (!this.isCurrentUser) this.checkFollowing();
-    window.addEventListener('beforeunload', this.fetchWorks);
+    // Fetch works via Pinia store
+    this.worksStore.fetchWorksForUser(this.localWorkUser.id);
+    window.addEventListener('beforeunload', () => {
+      this.worksStore.fetchWorksForUser(this.localWorkUser.id);
+    });
   },
   beforeDestroy() {
-    window.removeEventListener('beforeunload', this.fetchWorks);
+    window.removeEventListener('beforeunload', () => {
+      this.worksStore.fetchWorksForUser(this.localWorkUser.id);
+    });
   }
 };
 </script>
