@@ -7,6 +7,8 @@ class Work < ApplicationRecord
   has_many :favorites, dependent: :destroy
   has_many :favorited_users, through: :favorites, source: :user
 
+  has_many :activities, as: :target, dependent: :destroy
+
   validates :title, :description, presence: true
 
   def image_url

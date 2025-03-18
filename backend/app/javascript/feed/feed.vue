@@ -7,13 +7,17 @@
           <!-- ユーザー情報(画像と名前) -->
           <div class="user-info">
             <img :src="item.user.profile_image_url" alt="Profile Image" class="rounded-circle img-thumbnail mr-3" style="width: 50px; height: 50px;" />
-            <a :href="`/users/${item.user.id}`">{{ item.user.name }}</a>
+            <a :href="`/users/${item.user.id}/works`">{{ item.user.name }}</a>
           </div>
           <p>タイトル: {{ item.title || 'タイトル未定義' }}</p>
           <!-- 画像クリックでWorks詳細ページへ -->
           <a v-if="item.thumbnail_url" :href="`/users/${item.user.id}/works/${item.id}`">
             <img :src="item.thumbnail_url" alt="画像" class="img-fluid" />
           </a>
+          <!-- いいねボタン追加 -->
+          <button @click="toggleFavorite(item.id)">
+            {{ favorites[item.id] ? 'いいね解除' : 'いいね' }}
+          </button>
         </li>
       </ul>
     </div>
@@ -25,18 +29,30 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue'
-import { fetchFeed, feed } from '../stores/feedStore';
+import { fetchFeed, feed } from '../stores/feedStore'
+import { useFavoritesStore } from '../stores/favoritesStore'
 
 export default defineComponent({
   name: 'Feed',
   setup() {
+    const favoritesStore = useFavoritesStore();
+    const toggleFavorite = (workId: number) => {
+      favoritesStore.toggleFavorite(workId);
+    };
+
     onMounted(async () => {
       await fetchFeed();
-      console.log("Fetched feed data:", feed.value);
+      // feed APIの各フィードアイテムにis_favorited属性が含まれていることを前提にfavoritesをセットする
+      feed.value.forEach(item => {
+        favoritesStore.favorites[item.id] = item.is_favorited;
+      });
+      console.log("初期いいね状態:", favoritesStore.favorites);
     });
 
     return {
-      feed
+      feed,
+      toggleFavorite,
+      favorites: favoritesStore.favorites
     }
   }
 })

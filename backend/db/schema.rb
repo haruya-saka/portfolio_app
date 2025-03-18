@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_26_061618) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_05_051835) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,6 +39,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_061618) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "activities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "activity_type"
+    t.bigint "performer_id", null: false
+    t.string "target_type", null: false
+    t.bigint "target_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["performer_id"], name: "index_activities_on_performer_id"
+    t.index ["target_type", "target_id"], name: "index_activities_on_target"
+  end
+
   create_table "favorites", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "work_id", null: false
@@ -47,6 +58,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_061618) do
     t.index ["user_id", "work_id"], name: "index_favorites_on_user_id_and_work_id", unique: true
     t.index ["user_id"], name: "index_favorites_on_user_id"
     t.index ["work_id"], name: "index_favorites_on_work_id"
+  end
+
+  create_table "interesting_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "subject_user_id", null: false
+    t.bigint "target_user_id", null: false
+    t.integer "score", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subject_user_id", "target_user_id"], name: "index_interesting_scores_on_subject_user_id_and_target_user_id", unique: true
+    t.index ["subject_user_id"], name: "index_interesting_scores_on_subject_user_id"
+    t.index ["target_user_id"], name: "index_interesting_scores_on_target_user_id"
   end
 
   create_table "relationships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -97,8 +119,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_061618) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "activities", "users", column: "performer_id"
   add_foreign_key "favorites", "users"
   add_foreign_key "favorites", "works"
+  add_foreign_key "interesting_scores", "users", column: "subject_user_id"
+  add_foreign_key "interesting_scores", "users", column: "target_user_id"
   add_foreign_key "sessions", "users"
   add_foreign_key "work_images", "works"
   add_foreign_key "works", "users"
