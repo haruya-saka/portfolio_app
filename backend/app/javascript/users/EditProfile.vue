@@ -10,10 +10,10 @@
         <label for="name">名前</label>
         <input type="text" id="name" v-model="form.name" class="form-control" />
       </div>
-      <!-- <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" v-model="form.email" class="form-control" />
-      </div> -->
+      <div class="form-group">
+        <label for="description">自己紹介</label>
+        <textarea id="description" v-model="form.description" class="form-control"></textarea>
+      </div>
       <button type="submit" class="btn btn-primary mt-2">プロフィールを更新</button>
     </form>
 
@@ -40,7 +40,8 @@ export default {
       form: {
         name: '',
         email: '',
-        profileImage: null
+        profileImage: null,
+        description: ''
       },
       showModal: false,
       temporaryImageUrl: null
@@ -49,6 +50,7 @@ export default {
   created() {
     this.form.name = this.user.name || '';
     this.form.email = this.user.email || '';
+    this.form.description = this.user.description || '';
   },
   methods: {
     onImageSelected({ blob, imageUrl }) {
@@ -62,6 +64,9 @@ export default {
       }
       if (this.form.email) {
         formData.append('user[email]', this.form.email);
+      }
+      if (this.form.description) {
+        formData.append('user[description]', this.form.description);
       }
       if (this.form.profileImage) {
         formData.append('user[profile_image]', this.form.profileImage);

@@ -3,7 +3,8 @@
     <div class="modal-content">
       <h2>{{ title }}</h2>
       <ul>
-        <li v-for="item in items" :key="item.id">
+        <li v-for="item in items" :key="item.id" class="list-item">
+          <img :src="item.profile_image_url" alt="Profile Image" class="rounded-circle" style="width: 40px; height: 40px; margin-right: 10px;" />
           <a :href="`/users/${item.id}`">{{ item.name }}</a>
         </li>
       </ul>
@@ -16,38 +17,13 @@
 export default {
   name: "FollowModal",
   props: {
-    userId: Number,
+    visible: Boolean,
     type: String,
-    visible: Boolean
-  },
-  data() {
-    return {
-      items: []
-    }
+    items: { type: Array, default: () => [] }
   },
   computed: {
     title() {
-      return this.type === 'following' ? 'フォロー中' : 'フォロワー';
-    }
-  },
-  watch: {
-    visible(val) {
-      if (val) {
-        this.fetchData();
-      }
-    }
-  },
-  methods: {
-    async fetchData() {
-      try {
-        const res = await fetch(`/users/${this.userId}/${this.type}`, {
-          headers: { 'Accept': 'application/json' }
-        });
-        const data = await res.json();
-        this.items = this.type === 'following' ? data.following : data.followers;
-      } catch (err) {
-        console.error(err);
-      }
+      return this.type === 'following' ? 'フォロー中' : 'フォロワー'
     }
   }
 }
@@ -65,5 +41,11 @@ export default {
   padding: 1rem;
   border-radius: 8px;
   width: 300px;
+}
+.list-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding-right: 2rem;
 }
 </style>

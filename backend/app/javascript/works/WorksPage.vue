@@ -2,13 +2,13 @@
   <div id="works-page">
     <div class="works-container">
       <div class="user-info">
-        <img :src="localWorkUser.profile_image_url" alt="Profile Image" class="rounded-circle img-thumbnail mr-3" style="width: 50px; height: 50px;" />
-        <h2>{{ localWorkUser.name }}</h2>
-        <button v-if="!isCurrentUser" @click="toggleFollow" :class="['btn', isFollowing ? 'btn-secondary' : 'btn-primary', 'ms-3']">
+        <img :src="user.profile_image_url" alt="Profile Image" class="rounded-circle img-thumbnail mr-3" style="width: 50px; height: 50px;" />
+        <h2>{{ user.name }}</h2>
+        <button v-if="!isCurrentUser" @click="toggleFollow" class="btn btn-primary ml-3">
           {{ isFollowing ? 'Unfollow' : 'Follow' }}
         </button>
       </div>
-      <div v-for="work in worksStore.works" :key="work.id" class="work-card">
+      <div v-for="work in localWorks" :key="work.id" class="work-card">
         <template v-if="work.thumbnail_url">
           <div class="img-wrapper">
             <img
@@ -22,10 +22,10 @@
         </template>
         <div class="work-info">
           <h5>{{ work.title }}</h5>
-          <p>いいね: {{ work.favorite_count }} 件</p>
+          <!-- <button @click.stop="deleteWork(work.id)">削除</button> -->
         </div>
       </div>
-      <div class="new-work-link" v-if="isCurrentUser">
+      <div v-if="isCurrentUser" class="new-work-link">
         <a :href="newWorkPath" class="btn-link">Post a new work</a>
       </div>
     </div>
@@ -36,11 +36,10 @@
 import axios from 'axios'
 import { computed } from 'vue'
 import { useSessionStore } from '../stores/sessionStore'
-import { useWorksStore } from '../stores/worksStore'
 
 export default {
   props: {
-    workUser: {
+    user: {
       type: Object,
       required: true
     },
@@ -49,111 +48,95 @@ export default {
       required: true
     }
   },
-  setup() {
-    const sessionStore = useSessionStore();
-    sessionStore.loadCurrentUser();
-    const worksStore = useWorksStore();
-    return { sessionStore, worksStore };
-  },
   data() {
     return {
-      localWorkUser: this.workUser,
+      user: {},
+      works: [],
+      localWorks: this.works, // 初期値は props から設定
       isFollowing: false,
+      sessionStore: useSessionStore() // セッションストアを初期化
     };
   },
   computed: {
     newWorkPath() {
-      return `/users/${this.localWorkUser.id}/works/new`;
+      return `/users/${this.user.id}/works/new`;
     },
     currentUser() {
-      console.log('sessionStore:', this.sessionStore);
-      return (this.sessionStore && this.sessionStore.currentUser) ? this.sessionStore.currentUser : {};
+      return this.sessionStore.currentUser; // セッションストアから取得
     },
     isCurrentUser() {
-      return this.localWorkUser && this.localWorkUser.id && this.currentUser && this.localWorkUser.id === this.currentUser.id;
+      return this.user && this.user.id && this.currentUser && this.user.id === this.currentUser.id;
     }
   },
   methods: {
+    async fetchWorks() {
+      try {
+        console.log('Fetching works from server...');
+        const response = await axios.get(`/users/${this.user.id}/works.json`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        console.log('Response received:', response.data);
+        this.localWorks = response.data;
+      } catch (error) {
+        console.error('作品リストの取得に失敗しました:', error);
+      }
+    },
     handleImageError(imageUrl) {
       console.error('画像の読み込みに失敗しました:', imageUrl);
     },
     goToDetail(workId) {
-      window.location.href = `/users/${this.localWorkUser.id}/works/${workId}`;
+      window.location.href = `/users/${this.user.id}/works/${workId}`;
     },
     async toggleFollow() {
       try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         if (this.isFollowing) {
-          await axios.delete(`/relationships/${this.localWorkUser.id}`, {
-            headers: { 
-              'X-CSRF-Token': csrfToken,
-              'Accept': 'application/json'
-            }
+          await axios.delete(`/relationships/${this.user.id}`, {
+            headers: { 'X-CSRF-Token': csrfToken }
           });
-        } else {          // フォロー関係が存在するかどうかを確認
-          const checkResponse = await axios.get(`/relationships/find_by_user/${this.localWorkUser.id}`);
-          if (!checkResponse.data.is_following) {
-            await axios.post('/relationships', {
-              followed_id: this.localWorkUser.id
-            }, {
-              headers: { 
-                'X-CSRF-Token': csrfToken,
-                'Accept': 'application/json'
-              }
-            });
-          }
+        } else {
+          await axios.post('/relationships', {
+            followed_id: this.user.id
+          }, {
+            headers: { 'X-CSRF-Token': csrfToken }
+          });
         }
         this.isFollowing = !this.isFollowing;
       } catch (error) {
-        if (error.response && error.response.status === 500) {
-          console.error('フォロー/アンフォローに失敗しました: 重複エントリの可能性があります。', error);
-        } else {
-          console.error('フォロー/アンフォローに失敗しました:', error);
-        }
+        console.error('フォロー/アンフォローに失敗しました:', error);
       }
     },
     async checkFollowing() {
       try {
+        // currentUser がある場合のみ状態確認
         if (this.currentUser && this.currentUser.id) {
-          const response = await axios.get(`/relationships/find_by_user/${this.localWorkUser.id}`);
-          this.isFollowing = response.data.is_following;
+          const response = await axios.get(`/users/${this.currentUser.id}/following`);
+          this.isFollowing = response.data.some(following => following.id === this.user.id);
         }
       } catch (error) {
         console.error('フォロー状態の確認に失敗しました:', error);
       }
-    },
-    async deleteWork(workId) {
-      try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        await axios.delete(`/users/${this.localWorkUser.id}/works/${workId}`, {
-          headers: { 
-            'X-CSRF-Token': csrfToken,
-            'Accept': 'application/json'
-          }
-        });
-        this.localWorks = this.localWorks.filter(work => work.id !== workId);
-      } catch (error) {
-        console.error('作品の削除に失敗しました:', error);
-      }
-    },
+    }
   },
   mounted() {
     console.debug('workspage.vue mounted');
+    this.sessionStore.loadCurrentUser(); // セッションストアからユーザー情報をロード
+    console.debug('currentUser in mounted:', this.currentUser);
     const worksPageEl = document.getElementById('works-page');
     if (!worksPageEl) {
       console.error('works-page element not found');
       return;
     }
-    const rawWorkUserData = worksPageEl.getAttribute('data-user');
+    const rawUserData = worksPageEl.getAttribute('data-user');
     const rawWorksData = worksPageEl.getAttribute('data-works');
-    console.debug('Raw user data:', rawWorkUserData);
+    console.debug('Raw user data:', rawUserData);
     console.debug('Raw works data:', rawWorksData);
     try {
-      const parsedWorkUser = JSON.parse(rawWorkUserData);
-      this.localWorkUser = parsedWorkUser;
-      console.debug('Parsed work user:', parsedWorkUser);
+      const parsedUser = JSON.parse(rawUserData);
+      this.user = parsedUser;
+      console.debug('Parsed user:', parsedUser);
     } catch (e) {
-      console.error('Failed to parse work user data:', e);
+      console.error('Failed to parse user data:', e);
     }
     try {
       const parsedWorks = JSON.parse(rawWorksData);
@@ -162,17 +145,13 @@ export default {
     } catch (e) {
       console.error('Failed to parse works data:', e);
     }
+    // すでに currentUser はグローバルストアからロード済みとして利用
+    this.fetchWorks();
     if (!this.isCurrentUser) this.checkFollowing();
-    // Fetch works via Pinia store
-    this.worksStore.fetchWorksForUser(this.localWorkUser.id);
-    window.addEventListener('beforeunload', () => {
-      this.worksStore.fetchWorksForUser(this.localWorkUser.id);
-    });
+    window.addEventListener('beforeunload', this.fetchWorks);
   },
   beforeDestroy() {
-    window.removeEventListener('beforeunload', () => {
-      this.worksStore.fetchWorksForUser(this.localWorkUser.id);
-    });
+    window.removeEventListener('beforeunload', this.fetchWorks);
   }
 };
 </script>
@@ -201,11 +180,6 @@ export default {
   margin: 0;
 }
 
-.user-info .btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
 /* 個別の work card */
 .work-card {
   width: 300px;
@@ -221,26 +195,12 @@ export default {
 
 /* 画像用ラッパー */
 .img-wrapper {
-  position: relative;
   width: 100%;
   height: 200px;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-/* 削除ボタン */
-.delete-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #dc3545;
-  color: #fff;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 /* 画像のスタイルを統一 */

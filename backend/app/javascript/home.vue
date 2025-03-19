@@ -1,15 +1,13 @@
 <template>
   <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
     <p class="message text-center mb-5">{{ message }}</p>
-    <div class="content text-center w-100" style="max-width: 400px;">
+    <div class="content text-center w-100">
       <LoginForm v-if="!user" />
       <div v-else>
-        <p>Welcome, {{ user.name }}</p>
-          <!-- ログイン時にfeedコンポーネントを表示 -->
-        <div v-if="user">
+        <!-- ログイン時にfeedコンポーネントを表示 -->
+        <div v-if="user" class="feed-wrapper">
           <Feed />
         </div>
-        <button class="btn btn-primary btn-sm" @click="logout">Logout</button>
       </div>
       <div class="signup mt-4" v-if="!user">
         アカウントをお持ちでないですか？
@@ -18,6 +16,8 @@
     </div>
   </div>
 </template>
+
+
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
@@ -67,12 +67,21 @@ export default defineComponent({
 
 <style scoped>
 .message {
-  font-size: 2em;
+  font-size: 2rem;
 }
 
 button {
-  padding: 10px 20px;
-  font-size: 1em;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
   cursor: pointer;
+}
+
+/* Feedコンポーネントを中央揃え */
+.feed-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 </style>

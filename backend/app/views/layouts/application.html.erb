@@ -11,14 +11,14 @@
     <meta name="current-user" content='<%= current_user.to_json(only: [:id, :name], methods: [:profile_image_url, :following_count, :followers_count]) %>'>
   </head>
 
-  <body>
-    <div id="header"></div>
-    <%= render 'layouts/header' %>
-    <% flash.each do |key, message| %>
-      <div class="<%= key %>"><%= message %></div>
-    <% end %>
-
-    <%= yield %>
-    <%= render 'layouts/footer'%>
+  <body style="display: flex; flex-direction: column; min-height: 100vh;">
+    <%= render 'layouts/sidebar' %>
+    <div style="margin-left: 15%; flex: 1;">
+      <% flash.each do |key, message| %>
+        <div class="<%= key %>"><%= message %></div>
+      <% end %>
+      <%= yield %>
+    </div>
+    <%= render 'layouts/footer' %>
   </body>
 </html>

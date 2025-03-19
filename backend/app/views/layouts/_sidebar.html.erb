@@ -1,0 +1,13 @@
+<aside class="bg-light border-end vh-100 position-fixed" style="width: 15%;">
+  <nav class="nav flex-column">
+    <div id="vue-sidebar"
+         data-root-path="<%= root_path %>"
+         data-user-path="<%= current_user ? user_path(current_user) : '' %>"
+         data-works-path="<%= current_user ? user_works_path(current_user) : '' %>"
+         data-signup-path="<%= signup_path %>"
+         data-login-path="<%= login_path %>"
+         data-logout-path="<%= logout_path %>"
+         data-logged-in="<%= logged_in? %>">
+    </div>
+  </nav>
+</aside>

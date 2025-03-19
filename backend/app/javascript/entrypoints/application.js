@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 import { createBootstrap } from 'bootstrap-vue-next'
 import { createApp } from 'vue'
-import { createPinia } from 'pinia' // 追加
+import { createPinia } from 'pinia'
 import { Turbo } from "@hotwired/turbo-rails"
 import "@hotwired/stimulus"
 import Home from '../home.vue'
@@ -16,6 +16,7 @@ import WorksPage from '../works/WorksPage.vue'
 import WorkShowPage from '../works/WorkShowPage.vue'
 import PostWorks from '../works/PostWorks.vue'
 import WorksEdit from '../works/WorksEdit.vue'
+import Sidebar from '../components/Sidebar.vue'
 
 Turbo.start()
 
@@ -24,7 +25,7 @@ function initializeApp(component, selector, props = {}) {
   if (element) {
     const app = createApp(component, props)
     app.use(createBootstrap())
-    app.use(createPinia()) // 追加：Pinia を登録
+    app.use(createPinia())
     console.log('Bootstrap has been applied, Pinia registered')
     app.mount(selector)
   }
@@ -86,5 +87,19 @@ document.addEventListener('turbo:load', () => {
     const user = JSON.parse(worksEditElement.dataset.user)
     const work = JSON.parse(worksEditElement.dataset.work)
     initializeApp(WorksEdit, '#works-edit', { user, work })
+  }
+
+  const sidebarElement = document.querySelector('#vue-sidebar')
+  if (sidebarElement) {
+    const props = {
+      rootPath: sidebarElement.dataset.rootPath,
+      userPath: sidebarElement.dataset.userPath,
+      worksPath: sidebarElement.dataset.worksPath, 
+      signupPath: sidebarElement.dataset.signupPath,
+      loginPath: sidebarElement.dataset.loginPath,
+      logoutPath: sidebarElement.dataset.logoutPath,
+      loggedIn: sidebarElement.dataset.loggedIn === 'true'
+    }
+    initializeApp(Sidebar, '#vue-sidebar', props)
   }
 })

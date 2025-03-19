@@ -34,7 +34,7 @@ export default {
       formData.append('work[title]', work.title);
       formData.append('work[description]', work.description);
       newImages.forEach(img => {
-        formData.append('work[images][]', img.croppedBlob);
+        formData.append('work[work_images][]', img.croppedBlob);
       });
       try {
         const response = await fetch(`/users/${this.user.id}/works`, {
