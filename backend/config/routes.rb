@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  get "feed/index"
+  # get "feed/index"   # 不要なルートのためコメントアウト
   root to: 'vue#index'
   
   get 'vue/index'

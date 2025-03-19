@@ -11,7 +11,10 @@ class RegistrationsController < ApplicationController
       start_new_session_for(@user)
       render json: { user: @user, redirect_url: user_path(@user) }, status: :created
     else
-      render json: { alert: @user.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      render json: { 
+        alert: @user.errors.full_messages.join(', '), 
+        redirect_url: signup_path 
+      }, status: :unprocessable_entity
     end
   end
 

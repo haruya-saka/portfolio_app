@@ -47,10 +47,15 @@ class WorksController < ApplicationController
   def create
     @work = @user.works.build(work_params)
     if @work.save
-      if @work.images.attached?
-        # 複数画像に対応し、添付済みの画像を1枚ずつ WorkImage に登録
-        @work.images.each do |attached_image|
-          image_url = Rails.application.routes.url_helpers.rails_blob_url(attached_image, only_path: true)
+      if params[:work][:work_images].present?
+        params[:work][:work_images].each do |uploaded_file|
+          # Blob作成してアップロードファイルからURL取得
+          blob = ActiveStorage::Blob.create_and_upload!(
+            io: uploaded_file.tempfile,
+            filename: uploaded_file.original_filename,
+            content_type: uploaded_file.content_type
+          )
+          image_url = Rails.application.routes.url_helpers.rails_blob_url(blob, only_path: true)
           @work.work_images.create(image_url: image_url, orientation: 'landscape')
         end
       end
@@ -112,6 +117,6 @@ class WorksController < ApplicationController
   end
 
   def work_params
-    params.require(:work).permit(:title, :description, images: [])
+    params.require(:work).permit(:title, :description, work_images: [])
   end
 end

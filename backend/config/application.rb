@@ -31,7 +31,8 @@ module Backend
     config.session_store :cookie_store, key: '_interslice_session'
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use config.session_store, config.session_options
-    config.middleware.use ActionDispatch::Flash  # 追加
+    config.middleware.use ActionDispatch::Flash 
+    config.active_support.to_time_preserves_timezone = :zone
 
   end
 end

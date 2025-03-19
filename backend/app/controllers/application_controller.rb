@@ -3,6 +3,8 @@ class ApplicationController < ActionController::Base
   include SessionHelper
   helper_method :logged_in?, :current_user
 
+  before_action :authenticate_user!
+
   private
 
   def authenticate_user!

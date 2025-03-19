@@ -10,7 +10,7 @@ class UsersController < ApplicationController
   
   def show
     @user = User.find(params[:id])
-    @user = User.find(params[:id]).as_json(only: [:id, :name], methods: [:profile_image_url, :following_count, :followers_count])
+    @user = User.find(params[:id]).as_json(only: [:id, :name, :description], methods: [:profile_image_url, :following_count, :followers_count])
     Rails.logger.debug "User JSON: #{@user.to_json}"  # デバッグ用ログ出力
     respond_to do |format|
       format.html # HTMLリクエストに対するレスポンス
@@ -59,6 +59,6 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :profile_image)
+    params.require(:user).permit(:name, :email, :profile_image, :description)
   end
 end

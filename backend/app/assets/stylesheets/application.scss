@@ -16,3 +16,7 @@ html, body {
   .footer {
     margin-top: auto;
   }
+
+element {
+  print-color-adjust: exact; // color-adjust を置き換え
+}
