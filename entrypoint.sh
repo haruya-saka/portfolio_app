@@ -6,7 +6,7 @@ echo "=== Container initialization started ==="
 echo "Container build completed."
 
 echo "Changing directory to /workspace/backend"
-cd /workspace/backend
+cd /backend
 
 echo "Checking Gemfile existence..."
 if [ ! -f Gemfile ]; then
