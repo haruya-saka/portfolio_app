@@ -2,9 +2,6 @@
 set -e
 
 echo "[entrypoint.sh] Starting script"
-cd /workspace/backend
-
-# rails new . -d postgresql (Gemfileが無い場合だけRailsアプリを作成)
 if [ ! -f Gemfile ]; then
   echo "[entrypoint.sh] Creating new Rails app"
   rails new . -d postgresql
