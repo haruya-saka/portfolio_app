@@ -7,7 +7,7 @@ import { createPinia } from 'pinia'
 import { Turbo } from "@hotwired/turbo-rails"
 import "@hotwired/stimulus"
 import Home from '../home.vue'
-import LoginForm from '../components/LoginForm.vue'
+import Login from '../session/Login.vue'
 import SignupForm from '../components/SignupForm.vue'
 import Header from '../components/Header.vue'
 import Profile from '../users/Profile.vue'
@@ -33,7 +33,7 @@ function initializeApp(component, selector, props = {}) {
 
 document.addEventListener('turbo:load', () => {
   initializeApp(Home, '#home')
-  initializeApp(LoginForm, '#login-form')
+  initializeApp(Login, '#login')
   initializeApp(SignupForm, '#signup-form')
 
   const headerElement = document.querySelector('#vue-header')

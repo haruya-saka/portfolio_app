@@ -25,7 +25,7 @@
           <!-- <button @click.stop="deleteWork(work.id)">削除</button> -->
         </div>
       </div>
-      <div v-if="isCurrentUser" class="new-work-link">
+      <div v-if="isCurrentUser" class="new-work-link mb-3">
         <a :href="newWorkPath" class="btn-link">Post a new work</a>
       </div>
     </div>

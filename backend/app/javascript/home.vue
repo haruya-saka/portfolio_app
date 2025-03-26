@@ -9,6 +9,10 @@
           <Feed />
         </div>
       </div>
+      <div class="mt-4 text-center position-relative">
+        <hr>
+        <span class="position-absolute top-50 start-50 translate-middle bg-white px-2">または</span>
+      </div>
       <div class="signup mt-4" v-if="!user">
         アカウントをお持ちでないですか？
         <button class="btn btn-primary btn-sm" @click="goToSignup">登録する</button>
@@ -21,7 +25,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
-import LoginForm from './components/LoginForm.vue'
+import LoginForm from './session/LoginForm.vue'
 import Feed from './feed/feed.vue'
 
 export default defineComponent({
@@ -74,6 +78,10 @@ button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
   cursor: pointer;
+}
+
+.container {
+  max-width: 400px;
 }
 
 /* Feedコンポーネントを中央揃え */

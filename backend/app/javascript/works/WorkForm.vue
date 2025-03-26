@@ -8,14 +8,32 @@
     </div>
     <div class="right-panel">
       <div class="images">
-        <div v-for="(img, index) in work.work_images" :key="index" class="image-wrapper">
+        <div v-for="(img, index) in work.work_images" :key="index" class="image-wrapper" style="position: relative;">
           <div class="img-container">
             <img :src="img.image_url" class="img-uniform" :alt="`Image ${index + 1}`" @contextmenu.prevent="removeImage(index)">
+            <!-- 編集時のみ表示: オプションボタン -->
+            <button v-if="submitButtonText === 'Update'" @click="toggleOptions(index)" class="option-btn" style="position: absolute; top: 2px; right: 2px; background: none; border: none;">
+              <img src="/workspace/backend/app/javascript/icons/option.png" alt="Options" style="width: 20px; height: 20px;">
+            </button>
+            <!-- オプションメニュー -->
+            <div v-if="submitButtonText === 'Update' && optionVisibleIndex === index" class="option-menu" style="position: absolute; top: 25px; right: 2px; background: white; border: 1px solid #ccc; z-index: 10;">
+              <button @click="handleDeleteExisting(index)" style="display: block;">削除</button>
+              <button @click="cropExisting(index)" style="display: block;">トリミング</button>
+            </div>
           </div>
         </div>
-        <div v-for="(img, index) in newImages" :key="`new-${index}`" class="image-wrapper">
+        <div v-for="(img, index) in newImages" :key="`new-${index}`" class="image-wrapper" style="position: relative;">
           <div class="img-container">
             <img :src="img.previewUrl" class="img-uniform" :alt="`New Image ${index + 1}`">
+            <!-- 編集時のみ表示: オプションボタン (新規画像) -->
+            <button v-if="submitButtonText === 'Update'" @click="toggleNewOptions(index)" class="option-btn" style="position: absolute; top: 2px; right: 2px; background: none; border: none;">
+              <img src="/workspace/backend/app/javascript/icons/option.png" alt="Options" style="width: 20px; height: 20px;">
+            </button>
+            <!-- オプションメニュー (新規画像) -->
+            <div v-if="submitButtonText === 'Update' && optionVisibleNewIndex === index" class="option-menu" style="position: absolute; top: 25px; right: 2px; background: white; border: 1px solid #ccc; z-index: 10;">
+              <button @click="handleDeleteNew(index)" style="display: block;">削除</button>
+              <button @click="cropNew(index)" style="display: block;">トリミング</button>
+            </div>
           </div>
         </div>
         <div class="image-wrapper">
@@ -80,7 +98,10 @@ export default {
       isCropping: false,
       currentCropImageUrl: null,
       newImages: [],
-      cropper: null
+      cropper: null,
+      optionVisibleIndex: null,      // for work.work_images
+      optionVisibleNewIndex: null,   // for newImages
+      croppingTarget: null           // { type: 'existing' or 'new', index: Number }
     };
   },
   mounted() {
@@ -110,15 +131,19 @@ export default {
       });
     },
     cropCurrent() {
-      if (!this.cropper) return;
+      if (!this.cropper || !this.croppingTarget) return;
       this.cropper.getCroppedCanvas().toBlob(blob => {
         const previewUrl = URL.createObjectURL(blob);
         console.log('Cropped image blob:', blob)
         console.log('Preview URL:', previewUrl)
-        this.newImages.push({
-          croppedBlob: blob,
-          previewUrl: previewUrl
-        });
+        if (this.croppingTarget.type === 'existing') {
+          // 既存画像の場合：croppedBlobも保存する
+          this.work.work_images.splice(this.croppingTarget.index, 1, { image_url: previewUrl, croppedBlob: blob });
+        } else if (this.croppingTarget.type === 'new') {
+          // 新規画像の場合：croppedBlobを保存する
+          this.newImages.splice(this.croppingTarget.index, 1, { croppedBlob: blob, previewUrl: previewUrl });
+        }
+        this.croppingTarget = null;
         this.isCropping = false;
         this.currentCropImageUrl = null;
         if (this.$refs.fileInput) {
@@ -147,6 +172,50 @@ export default {
       if (this.cropper) {
         this.cropper.setAspectRatio(Number(newRatio));
       }
+    },
+    toggleOptions(index) {
+      this.optionVisibleIndex = this.optionVisibleIndex === index ? null : index;
+    },
+    handleDeleteExisting(index) {
+      this.removeImage(index);
+      this.optionVisibleIndex = null;
+    },
+    cropExisting(index) {
+      this.croppingTarget = { type: 'existing', index: index };
+      this.currentCropImageUrl = this.work.work_images[index].image_url;
+      this.isCropping = true;
+      this.optionVisibleIndex = null;
+      this.$nextTick(() => {
+        const imageElement = this.$refs.cropperImage;
+        this.cropper = new Cropper(imageElement, {
+          aspectRatio: this.selectedRatio,
+          viewMode: 1,
+          autoCropArea: 0.8,
+          responsive: true
+        });
+      });
+    },
+    toggleNewOptions(index) {
+      this.optionVisibleNewIndex = this.optionVisibleNewIndex === index ? null : index;
+    },
+    handleDeleteNew(index) {
+      this.newImages.splice(index, 1);
+      this.optionVisibleNewIndex = null;
+    },
+    cropNew(index) {
+      this.croppingTarget = { type: 'new', index: index };
+      this.currentCropImageUrl = this.newImages[index].previewUrl;
+      this.isCropping = true;
+      this.optionVisibleNewIndex = null;
+      this.$nextTick(() => {
+        const imageElement = this.$refs.cropperImage;
+        this.cropper = new Cropper(imageElement, {
+          aspectRatio: this.selectedRatio,
+          viewMode: 1,
+          autoCropArea: 0.8,
+          responsive: true
+        });
+      });
     }
   }
 }

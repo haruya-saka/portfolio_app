@@ -1,5 +1,7 @@
+// userのupdateアクション
+
 <template>
-  <div>
+  <div class="mt-3 mx-3">
     <div class="d-flex align-items-center">
       <img :src="temporaryImageUrl || user.profile_image_url" alt="Profile Image" class="rounded-circle img-thumbnail mr-3" style="width: 50px; height: 50px;" />
       <h1>{{ user.name }}</h1>

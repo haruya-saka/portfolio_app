@@ -9,12 +9,14 @@ class UsersController < ApplicationController
   end
   
   def show
-    @user = User.find(params[:id])
-    @user = User.find(params[:id]).as_json(only: [:id, :name], methods: [:profile_image_url, :following_count, :followers_count])
-    Rails.logger.debug "User JSON: #{@user.to_json}"  # デバッグ用ログ出力
+    Rails.logger.debug "Request format: #{request.format}"
+    @user = User.find(params[:id]).as_json(
+      only: [:id, :name, :description],
+      methods: [:profile_image_url, :following_count, :followers_count]
+    )
     respond_to do |format|
-      format.html # HTMLリクエストに対するレスポンス
-      format.json { render json: @user } # JSONリクエストに対するレスポンス
+      format.html # 暗黙的にrender :showを意味している。つまり、show.html.erbを表示する。
+      format.json { render json: @user } 
     end
   end
 
@@ -22,7 +24,7 @@ class UsersController < ApplicationController
     user = current_user
     if user.update(user_params)
       if params[:user][:profile_image].present?
-        user.profile_image.purge # 既存のprofile_imageを削除
+        user.profile_image.purge
         user.profile_image.attach(params[:user][:profile_image])
         Rails.logger.debug "Profile image attached: #{user.profile_image.attached?}"
         if user.profile_image.attached?
@@ -59,6 +61,6 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :profile_image)
+    params.require(:user).permit(:name, :email, :profile_image, :description)
   end
 end

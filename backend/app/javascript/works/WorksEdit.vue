@@ -30,9 +30,19 @@ export default {
       const formData = new FormData();
       formData.append('work[title]', work.title);
       formData.append('work[description]', work.description);
-      newImages.forEach(img => {
-        formData.append('work[images][]', img.croppedBlob);
+      // 既存画像のうち、トリミング済み(croppedBlob)のものと新規画像をまとめる
+      const updatedImages = [];
+      work.work_images.forEach(img => {
+        if (img.croppedBlob) {
+          updatedImages.push(img);
+        }
       });
+      newImages.forEach(img => updatedImages.push(img));
+      if (updatedImages.length > 0) {
+        updatedImages.forEach(img => {
+          formData.append('work[images][]', img.croppedBlob);
+        });
+      }
       try {
         const response = await fetch(`/users/${this.user.id}/works/${work.id}`, {
           method: 'PUT',

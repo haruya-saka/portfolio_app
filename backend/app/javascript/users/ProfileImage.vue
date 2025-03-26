@@ -1,3 +1,6 @@
+// プロフィール画像に関わる編集モーダル
+// ToDo: トリミング領域を円形にする
+
 <template>
   <div class="modal" tabindex="-1" role="dialog" style="display: block;" @click.self="closeModal">
     <div class="modal-dialog" role="document">
@@ -7,7 +10,7 @@
         </div>
         <div class="modal-body">
           <div class="pi-form-group">
-            <label for="profileImage">新しいプロフィール画像を選択</label>
+            <label for="profileImage">プロフィール画像を選択</label>
             <input type="file" id="profileImage" @change="onFileChange" class="form-control-file" />
           </div>
           <div v-if="imageUrl" class="cropper-container">

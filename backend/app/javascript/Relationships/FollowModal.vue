@@ -1,3 +1,5 @@
+// profile.vueで使用されるフォロー/フォロワーモーダル
+
 <template>
   <div v-if="visible" class="modal-overlay">
     <div class="modal-content">

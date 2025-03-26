@@ -92,7 +92,6 @@ ul {
   height: auto;
 }
 
-/* いいねアイコンのスタイル */
 .favorite-icon {
   width: 24px;
   height: 24px;
@@ -112,5 +111,10 @@ ul {
 .no-image {
   width: 100%;
   height: 100%;
+}
+
+.user-info a {
+  color: black;
+  text-decoration: none;
 }
 </style>

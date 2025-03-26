@@ -1,3 +1,5 @@
+// show.html.erbにマウント
+
 <template>
   <div class="profile-container">
     <div class="d-flex align-items-center">
@@ -36,7 +38,7 @@
 </template>
 
 <script>
-import FollowModal from '../components/FollowModal.vue'; 
+import FollowModal from '../Relationships/FollowModal.vue'; 
 import { useSessionStore } from '../stores/sessionStore';
 import { useWorksStore } from '../stores/worksStore';
 
@@ -63,8 +65,8 @@ export default {
       profileImageUrl: this.user.profile_image_url,
       showModal: false,
       modalType: '',
-      items: [], // 追加されたitems
-      isCurrentUser: false, // リアクティブな値として管理
+      items: [],
+      isCurrentUser: false, 
     };
   },
   computed: {
@@ -95,12 +97,13 @@ export default {
     }
   },
   async mounted() {
+    console.log('Received user object:', this.user); // userオブジェクトを出力
     await this.checkCurrentUser();
   }
 };
 </script>
 
-<style scoped>
+<style>
 .profile-container {
   display: flex;
   flex-direction: column;
