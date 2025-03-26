@@ -1,6 +1,5 @@
 # ベースイメージとして指定されたイメージを使用
 FROM mcr.microsoft.com/devcontainers/ruby:1-3.3-bullseye
-FROM mcr.microsoft.com/devcontainers/ruby:1-3.3-bullseye
 
 # Node.jsをインストール
 RUN echo "[Dockerfile] Installing Node.js" && \
