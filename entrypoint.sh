@@ -1,8 +1,24 @@
 #!/bin/bash
-set -e
+set -ex
 
-# Remove a potentially pre-existing server.pid for Rails.
-rm -f /sample_rails/tmp/pids/server.pid
+echo "=== Container initialization started ==="
 
-# Then exec the container's main process (what's set as CMD in the Dockerfile).
-exec "$@"
+echo "Container build completed."
+
+echo "Changing directory to /workspace/backend"
+cd /workspace/backend
+
+echo "Checking Gemfile existence..."
+if [ ! -f Gemfile ]; then
+  echo "Gemfile not found. Creating new Rails app..."
+  rails new . -d postgresql
+fi
+
+echo "Installing gems..."
+bundle install
+
+echo "Removing old server PID file if exists"
+rm -f tmp/pids/server.pid
+
+echo "Starting rails server..."
+rails server -b 0.0.0.0

@@ -47,10 +47,14 @@ class WorksController < ApplicationController
   def create
     @work = @user.works.build(work_params)
     if @work.save
-      if @work.images.attached?
-        # 複数画像に対応し、添付済みの画像を1枚ずつ WorkImage に登録
-        @work.images.each do |attached_image|
-          image_url = Rails.application.routes.url_helpers.rails_blob_url(attached_image, only_path: true)
+      if params[:work][:work_images].present?
+        params[:work][:work_images].each do |uploaded_file|
+          blob = ActiveStorage::Blob.create_and_upload!(
+            io: uploaded_file.tempfile,
+            filename: uploaded_file.original_filename,
+            content_type: uploaded_file.content_type
+          )
+          image_url = Rails.application.routes.url_helpers.rails_blob_url(blob, only_path: true)
           @work.work_images.create(image_url: image_url, orientation: 'landscape')
         end
       end
@@ -92,7 +96,10 @@ class WorksController < ApplicationController
 
   def destroy
     @work.destroy
-    head :no_content
+    respond_to do |format|
+      format.html { redirect_to user_works_path(@user), notice: 'Work was successfully deleted.' }
+      format.json { render json: { redirect_url: user_works_path(@user) }, status: :ok }
+    end
   end
 
   private
