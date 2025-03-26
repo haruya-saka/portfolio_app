@@ -9,7 +9,7 @@ services:
       - .:/workspace
     ports:
       - "3000:3000"
-    working_dir: myapp
+    working_dir: /workspace/backend
     depends_on:
       - db
 

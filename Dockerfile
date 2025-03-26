@@ -1,5 +1,6 @@
 # ベースイメージとして指定されたイメージを使用
 FROM mcr.microsoft.com/devcontainers/ruby:1-3.3-bullseye
+FROM mcr.microsoft.com/devcontainers/ruby:1-3.3-bullseye
 
 # Node.jsをインストール
 RUN echo "[Dockerfile] Installing Node.js" && \
@@ -12,14 +13,16 @@ RUN echo "[Dockerfile] Installing Node.js" && \
 RUN echo "[Dockerfile] Installing Rails" && \
     gem install rails -v '8.0.1'
 
-# entrypoint.shをコンテナ内の作業ディレクトリにコピー
+# entrypoint.shをコンテナ内にコピー
 COPY entrypoint.sh /usr/bin/
-
-# entrypoint.shの実行権限を付与
 RUN chmod +x /usr/bin/entrypoint.sh
+
+# 作業ディレクトリ設定 & ソースコピー
+WORKDIR /workspace
+COPY . /workspace
 
 # 必要なポートを公開
 EXPOSE 3000 8000
 
-# コンテナ起動時にentrypoint.shを実行するように設定
+# コンテナ起動時にentrypoint.shを実行
 ENTRYPOINT ["entrypoint.sh"]
