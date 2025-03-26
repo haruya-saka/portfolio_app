@@ -11,7 +11,10 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
-  create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
     t.bigint "record_id", null: false
@@ -21,7 +24,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "active_storage_blobs", force: :cascade do |t|
     t.string "key", null: false
     t.string "filename", null: false
     t.string "content_type"
@@ -33,13 +36,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "active_storage_variant_records", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "active_storage_variant_records", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "activities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "activities", force: :cascade do |t|
     t.string "activity_type"
     t.bigint "performer_id", null: false
     t.string "target_type", null: false
@@ -50,7 +53,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["target_type", "target_id"], name: "index_activities_on_target"
   end
 
-  create_table "favorites", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "favorites", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "work_id", null: false
     t.datetime "created_at", null: false
@@ -60,7 +63,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["work_id"], name: "index_favorites_on_work_id"
   end
 
-  create_table "interesting_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "interesting_scores", force: :cascade do |t|
     t.bigint "subject_user_id", null: false
     t.bigint "target_user_id", null: false
     t.integer "score", default: 0, null: false
@@ -71,7 +74,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["target_user_id"], name: "index_interesting_scores_on_target_user_id"
   end
 
-  create_table "relationships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "relationships", force: :cascade do |t|
     t.integer "follower_id"
     t.integer "followed_id"
     t.datetime "created_at", null: false
@@ -81,7 +84,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["follower_id"], name: "index_relationships_on_follower_id"
   end
 
-  create_table "sessions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "sessions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "ip_address"
     t.string "user_agent"
@@ -90,7 +93,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
-  create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
@@ -100,7 +103,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
-  create_table "work_images", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "work_images", force: :cascade do |t|
     t.bigint "work_id", null: false
     t.string "image_url"
     t.string "orientation"
@@ -109,12 +112,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_19_054958) do
     t.index ["work_id"], name: "index_work_images_on_work_id"
   end
 
-  create_table "works", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "works", force: :cascade do |t|
     t.string "title"
     t.text "description"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["user_id", "created_at"], name: "index_works_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_works_on_user_id"
   end
 
