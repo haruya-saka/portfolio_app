@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: /bin/bash -c "cd /workspace/backend && if [ ! -f Gemfile ]; then rails new . -d postgresql; fi && bundle install && rm -f tmp/pids/server.pid && rails server -b 0.0.0.0"
+    command: /bin/bash -c "echo '[docker-compose] Starting Rails setup' && cd /workspace/backend && if [ ! -f Gemfile ]; then echo '[docker-compose] Creating new Rails app' && rails new . -d postgresql; fi && echo '[docker-compose] Installing gems' && bundle install && echo '[docker-compose] Removing old server.pid' && rm -f tmp/pids/server.pid && echo '[docker-compose] Starting Rails server' && rails server -b 0.0.0.0"
     volumes:
       - .:/workspace
     ports:

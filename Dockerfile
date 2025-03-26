@@ -2,13 +2,15 @@
 FROM mcr.microsoft.com/devcontainers/ruby:1-3.3-bullseye
 
 # Node.jsをインストール
-RUN apt-get update && \
+RUN echo "[Dockerfile] Installing Node.js" && \
+    apt-get update && \
     apt-get install -y curl && \
     curl -fsSL https://deb.nodesource.com/setup_current.x | bash - && \
     apt-get install -y nodejs
 
 # Railsをインストール
-RUN gem install rails -v '8.0.1'
+RUN echo "[Dockerfile] Installing Rails" && \
+    gem install rails -v '8.0.1'
 
 # entrypoint.shをコンテナ内の作業ディレクトリにコピー
 COPY entrypoint.sh /usr/bin/
