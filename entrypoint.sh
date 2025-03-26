@@ -1,25 +1,12 @@
 #!/bin/bash
-set -ex
+set -e
 
-echo "=== Container initialization started ==="
+echo "[entrypoint.sh] starting script"
 
-echo "Container build completed."
-echo "Current directory contents:"
-ls -la
-echo "Changing directory to /workspace/backend"
-cd ./backend
+# Remove a potentially pre-existing server.pid for Rails.
+echo "[entrypoint.sh] removing old server.pid"
+rm -f /sample_rails/tmp/pids/server.pid
 
-echo "Checking Gemfile existence..."
-if [ ! -f Gemfile ]; then
-  echo "Gemfile not found. Creating new Rails app..."
-  rails new . -d postgresql
-fi
-
-echo "Installing gems..."
-bundle install
-
-echo "Removing old server PID file if exists"
-rm -f tmp/pids/server.pid
-
-echo "Starting rails server..."
-rails server -b 0.0.0.0
+# Then exec the container's main process.
+echo "[entrypoint.sh] executing main process"
+exec "$@"
