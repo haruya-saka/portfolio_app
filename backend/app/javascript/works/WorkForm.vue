@@ -43,6 +43,7 @@
       </div>
     </div>
     <button @click="submitForm(work, newImages)" class="btn btn-primary mt-3">{{ submitButtonText }}</button>
+    <button v-if="work.id" @click="deleteWork" class="btn btn-danger mt-3">Delete</button>
   </div>
 </template>
 
@@ -82,6 +83,8 @@ export default {
       newImages: [],
       cropper: null
     };
+  },
+  computed: {
   },
   mounted() {
     console.log('WorkForm mounted.')
@@ -146,6 +149,26 @@ export default {
       this.selectedRatio = newRatio;
       if (this.cropper) {
         this.cropper.setAspectRatio(Number(newRatio));
+      }
+    },
+    async deleteWork() {
+      if (!confirm("本当に削除しますか？")) return;
+      try {
+        const response = await fetch(`/users/${this.user.id}/works/${this.work.id}`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          window.location.href = data.redirect_url;
+        } else {
+          console.error('Error deleting work:', await response.json());
+        }
+      } catch (error) {
+        console.error('Error deleting work:', error);
       }
     }
   }

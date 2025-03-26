@@ -2,11 +2,11 @@
 set -e
 
 echo "[entrypoint.sh] Starting script"
-if [ ! -f Gemfile ]; then
-  echo "[entrypoint.sh] Creating new Rails app"
-  rails new myapp -d postgresql
-fi
 
+echo "[entrypoint.sh] Current directory"
+ls -la
+
+cd /backend
 echo "[entrypoint.sh] Removing old server.pid"
 rm -f tmp/pids/server.pid
 

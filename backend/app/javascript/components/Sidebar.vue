@@ -17,7 +17,7 @@
         </button>
         <button v-if="loggedIn && computedWorkId" @click="goToEdit" class="btn btn-link text-start d-flex align-items-center">
           <img src="@/icons/work_edit.png" alt="Works Icon" class="me-2" style="width: 20px; height: 20px;" />
-          Edit your Work
+          Edit Work
         </button>
         <button v-if="loggedIn" @click="logout" class="btn btn-link text-start d-flex align-items-center">
           <img src="@/icons/logout.png" alt="Logout Icon" class="me-2" style="width: 20px; height: 20px;" />
@@ -96,7 +96,9 @@ export default {
       window.location.href = path;
     },
     goToEdit() {
-      window.location.href = `${this.currentPath}/edit`;
+      // 現在のパス末尾に '/edit' を重複して追加しないようにする
+      const basePath = this.currentPath.replace(/\/edit$/, '');
+      window.location.href = `${basePath}/edit`;
     },
     logout() {
       if (confirm('ログアウトしますか？')) {
