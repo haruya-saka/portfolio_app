@@ -2,12 +2,14 @@
 set -ex
 
 echo "Current working directory: $(pwd)"
+echo "=== Directory structure ==="
+find . -type d -print | sort
+echo "============================"
+
 echo "=== Container initialization started ==="
 
 echo "Container build completed."
 
-echo "Changing directory to /workspace/backend"
-cd ./backend
 
 echo "Checking Gemfile existence..."
 if [ ! -f Gemfile ]; then
