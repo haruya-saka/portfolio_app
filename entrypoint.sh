@@ -6,7 +6,7 @@ echo "[entrypoint.sh] Starting script"
 echo "[entrypoint.sh] Current directory"
 ls -la
 
-cd /backend
+cd ./backend
 echo "[entrypoint.sh] Removing old server.pid"
 rm -f tmp/pids/server.pid
 
