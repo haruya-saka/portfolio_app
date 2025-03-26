@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
 
+echo "Current working directory: $(pwd)"
 echo "=== Container initialization started ==="
 
 echo "Container build completed."
